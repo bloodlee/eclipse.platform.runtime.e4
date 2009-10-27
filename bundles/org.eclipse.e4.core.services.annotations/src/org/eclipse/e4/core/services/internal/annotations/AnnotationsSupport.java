@@ -14,14 +14,14 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import org.eclipse.e4.core.services.annotations.In;
-import org.eclipse.e4.core.services.annotations.Inject;
-import org.eclipse.e4.core.services.annotations.Named;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import org.eclipse.e4.core.services.annotations.Optional;
 import org.eclipse.e4.core.services.annotations.PostConstruct;
 import org.eclipse.e4.core.services.annotations.PreDestroy;
 import org.eclipse.e4.core.services.internal.context.InjectionProperties;
 
-// TBD remove @In; use @Inject
 // TBD make all injections optional unless "mandatory" is specified
 
 public class AnnotationsSupport {
@@ -45,10 +45,9 @@ public class AnnotationsSupport {
 		for (Annotation annotation : annotations) {
 			if (annotation instanceof Inject) {
 				inject = true;
-				optional = ((Inject) annotation).optional();
-			} else if (annotation instanceof In) {
+			} else if (annotation instanceof Optional) {
 				inject = true;
-				optional = ((In) annotation).optional();
+				optional = ((Optional) annotation).value();
 			} else if (annotation instanceof Named)
 				injectName = ((Named) annotation).value();
 		}
