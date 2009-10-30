@@ -8,3 +8,4 @@ Export-Package: org.eclipse.e4.core.services.annotations
 Bundle-Vendor: Eclipse.org
 Fragment-Host: org.eclipse.e4.core.services;bundle-version="[0.9,2.0)"
 Import-Package: javax.inject
+Bundle-ClassPath: injection_annotations.jar
