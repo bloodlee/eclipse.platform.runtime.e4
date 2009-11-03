@@ -8,8 +8,10 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.e4.core.services.internal.context;
+package org.eclipse.e4.core.tests.services.internal.annotations;
 
+import org.eclipse.e4.core.services.annotations.PostConstruct;
+import org.eclipse.e4.core.services.annotations.PreDestroy;
 import org.eclipse.e4.core.services.context.IEclipseContext;
 
 /**
@@ -32,12 +34,12 @@ public class ObjectSubClass extends ObjectSuperClass {
 		super();
 	}
 
-	public void inject_ObjectViaMethod(Float f) {
+	public void injectObjectViaMethod(Float f) {
 		myObject = f;
 		setObjectCalled++;
 	}
 
-	public void inject_OverriddenMethod(Float f) {
+	public void injectOverriddenMethod(Float f) {
 		setOverriddenCalled++;
 	}
 
@@ -61,4 +63,23 @@ public class ObjectSubClass extends ObjectSuperClass {
 	public int getOverriddenCount() {
 		return setOverriddenCalled;
 	}
+
+	@PostConstruct
+	public void subPostConstruct() {
+		postConstructSetObjectCalled = setObjectCalled;
+		postConstructSetStringCalled = setStringCalled;
+		postConstructSetOverriddenCalled = setOverriddenCalled;
+		subPostConstructCount++;
+	}
+
+	@PreDestroy
+	public void subPreDestroy() {
+		subPreDestroyCount++;
+	}
+
+	@PreDestroy
+	public void overriddenPreDestroy() {
+		overriddenPreDestroyCount++;
+	}
+
 }

@@ -8,8 +8,12 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.e4.core.services.internal.context;
+package org.eclipse.e4.core.tests.services.internal.annotations;
 
+import javax.inject.Inject;
+
+import org.eclipse.e4.core.services.annotations.PostConstruct;
+import org.eclipse.e4.core.services.annotations.PreDestroy;
 import org.eclipse.e4.core.services.context.IEclipseContext;
 
 /**
@@ -17,9 +21,10 @@ import org.eclipse.e4.core.services.context.IEclipseContext;
  */
 public class ObjectBasic {
 
-	// Injected directly
-	public String inject_String;
-	private Integer inject_Integer;
+	@Inject
+	public String injectedString;
+	@Inject
+	private Integer injectedInteger;
 
 	// Injected indirectly
 	public Double d;
@@ -37,23 +42,27 @@ public class ObjectBasic {
 		// placeholder
 	}
 
-	public void inject_ObjectViaMethod(Double d) {
+	@Inject
+	public void objectViaMethod(Double d) {
 		setMethodCalled++;
 		this.d = d;
 	}
 
-	public void inject_Arguments(Float f, Character c) {
+	@Inject
+	public void arguments(Float f, Character c) {
 		setMethodCalled2++;
 		this.f = f;
 		this.c = c;
 	}
 
-	public void contextSet(IEclipseContext context) {
+	@PostConstruct
+	public void postCreate(IEclipseContext context) {
 		this.context = context;
 		finalized = true;
 	}
 
-	public void contextDisposed(IEclipseContext context) {
+	@PreDestroy
+	public void preFinal(IEclipseContext context) {
 		if (this.context != context)
 			throw new IllegalArgumentException("Unexpected context");
 		this.context = null;
@@ -61,7 +70,7 @@ public class ObjectBasic {
 	}
 
 	public Integer getInt() {
-		return inject_Integer;
+		return injectedInteger;
 	}
 
 }

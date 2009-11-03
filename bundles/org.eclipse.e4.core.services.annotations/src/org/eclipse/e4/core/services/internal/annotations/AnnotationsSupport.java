@@ -11,11 +11,13 @@
 package org.eclipse.e4.core.services.internal.annotations;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Qualifier;
 
 import org.eclipse.e4.core.services.annotations.Optional;
 import org.eclipse.e4.core.services.annotations.PostConstruct;
@@ -34,14 +36,31 @@ public class AnnotationsSupport {
 		return getInjectProperties(method.getAnnotations());
 	}
 	
-	static public InjectionProperties getInjectProperties(Class<?> type) {
-		return getInjectProperties(type.getAnnotations());
+	static public InjectionProperties getInjectProperties(Constructor constructor) {
+		return getInjectProperties(constructor.getAnnotations());
+	}
+	
+	static public InjectionProperties[] getInjectParamsProperties(Constructor constructor) {
+		Annotation[][] annotations = constructor.getParameterAnnotations();
+		InjectionProperties[] result = new InjectionProperties[annotations.length]; 
+		for(int i = 0 ; i < annotations.length; i++)
+			result[i] = getInjectProperties(annotations[i]);
+		return result;
+	}
+
+	static public InjectionProperties[] getInjectParamProperties(Method method) {
+		Annotation[][] annotations = method.getParameterAnnotations();
+		InjectionProperties[] result = new InjectionProperties[annotations.length]; 
+		for(int i = 0 ; i < annotations.length; i++)
+			result[i] = getInjectProperties(annotations[i]);
+		return result;
 	}
 	
 	static private InjectionProperties getInjectProperties(Annotation[] annotations) {
 		boolean inject = false;
 		boolean optional = false;
-		String injectName = null;
+		String named = null;
+		String qualifier = null;
 		for (Annotation annotation : annotations) {
 			if (annotation instanceof Inject) {
 				inject = true;
@@ -49,8 +68,11 @@ public class AnnotationsSupport {
 				inject = true;
 				optional = ((Optional) annotation).value();
 			} else if (annotation instanceof Named)
-				injectName = ((Named) annotation).value();
+				named = ((Named) annotation).value();
+			else if (annotation instanceof Qualifier)
+				qualifier = ((Qualifier) annotation).getClass().getName(); // XXX check that this is a simple name
 		}
+		String injectName = (named != null) ? named : qualifier;
 		return new InjectionProperties(inject, injectName, optional);
 	}
 

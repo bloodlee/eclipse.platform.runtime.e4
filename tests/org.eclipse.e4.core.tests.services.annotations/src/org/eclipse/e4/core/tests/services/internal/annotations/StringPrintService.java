@@ -9,13 +9,20 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 
-package org.eclipse.e4.core.services.internal.context;
+package org.eclipse.e4.core.tests.services.internal.annotations;
 
 /**
- * A toy service implementation that prints a message.
+ *
  */
-public interface PrintService {
-	public static final String SERVICE_NAME = PrintService.class.getName();
+public class StringPrintService implements PrintService {
+	private StringBuffer buf = new StringBuffer();
 
-	public void print(String message);
+	public void print(String message) {
+		buf.append(message);
+	}
+
+	public String toString() {
+		return buf.toString();
+	}
+
 }

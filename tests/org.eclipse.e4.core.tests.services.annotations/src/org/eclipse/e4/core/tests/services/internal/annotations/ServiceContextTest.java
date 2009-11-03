@@ -9,16 +9,18 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 
-package org.eclipse.e4.core.services.internal.context;
+package org.eclipse.e4.core.tests.services.internal.annotations;
 
 import javax.inject.Inject;
+
 import junit.framework.TestCase;
+
 import org.eclipse.e4.core.services.IDisposable;
 import org.eclipse.e4.core.services.context.EclipseContextFactory;
 import org.eclipse.e4.core.services.context.IEclipseContext;
 import org.eclipse.e4.core.services.context.spi.ContextInjectionFactory;
 import org.eclipse.e4.core.services.context.spi.IContextConstants;
-import org.eclipse.e4.core.tests.services.TestActivator;
+import org.eclipse.e4.core.tests.services.annotations.Activator;
 import org.eclipse.osgi.service.debug.DebugOptions;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
@@ -73,13 +75,11 @@ public class ServiceContextTest extends TestCase {
 
 	private IEclipseContext context;
 
-	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		context = EclipseContextFactory.createServiceContext(TestActivator.bundleContext);
+		context = EclipseContextFactory.createServiceContext(Activator.bundleContext);
 	}
 
-	@Override
 	protected void tearDown() throws Exception {
 		if (context instanceof IDisposable)
 			((IDisposable) context).dispose();
@@ -88,7 +88,7 @@ public class ServiceContextTest extends TestCase {
 
 	public void testDeclarativeService() {
 		IEclipseContext context = EclipseContextFactory
-				.createServiceContext(TestActivator.bundleContext);
+				.createServiceContext(Activator.bundleContext);
 		assertTrue(context.containsKey("sum"));
 		assertEquals(0, context.get("sum"));
 		context.set("x", 1);
@@ -114,7 +114,7 @@ public class ServiceContextTest extends TestCase {
 		Printer userObject = new Printer();
 
 		StringPrintService stringPrint1 = new StringPrintService();
-		ServiceRegistration reg1 = TestActivator.bundleContext.registerService(
+		ServiceRegistration reg1 = Activator.bundleContext.registerService(
 				PrintService.SERVICE_NAME, stringPrint1, null);
 
 		ContextInjectionFactory.inject(userObject, context);
@@ -130,7 +130,7 @@ public class ServiceContextTest extends TestCase {
 
 		// register a different service implementation
 		StringPrintService stringPrint2 = new StringPrintService();
-		ServiceRegistration reg2 = TestActivator.bundleContext.registerService(
+		ServiceRegistration reg2 = Activator.bundleContext.registerService(
 				PrintService.SERVICE_NAME, stringPrint2, null);
 		userObject.print("yet another test");
 		// the second string should have the value
@@ -145,7 +145,7 @@ public class ServiceContextTest extends TestCase {
 	 */
 	public void testServiceRemovalOnContextDispose() {
 		StringPrintService stringPrint1 = new StringPrintService();
-		ServiceRegistration reg1 = TestActivator.bundleContext.registerService(
+		ServiceRegistration reg1 = Activator.bundleContext.registerService(
 				PrintService.SERVICE_NAME, stringPrint1, null);
 		ServiceReference ref = reg1.getReference();
 
@@ -159,10 +159,10 @@ public class ServiceContextTest extends TestCase {
 	}
 
 	public void testServiceExample() {
-		ServiceRegistration reg = TestActivator.bundleContext.registerService(IPaletteService.class
+		ServiceRegistration reg = Activator.bundleContext.registerService(IPaletteService.class
 				.getName(), new PaletteImpl(Color.BLUE), null);
 		IEclipseContext context = EclipseContextFactory
-				.createServiceContext(TestActivator.bundleContext);
+				.createServiceContext(Activator.bundleContext);
 		Crayon crayon = new Crayon();
 		ContextInjectionFactory.inject(crayon, context);
 		crayon.draw();
@@ -175,7 +175,7 @@ public class ServiceContextTest extends TestCase {
 	 */
 	public void testServiceRemovalOnChildContextDispose() {
 		StringPrintService stringPrint1 = new StringPrintService();
-		ServiceRegistration reg1 = TestActivator.bundleContext.registerService(
+		ServiceRegistration reg1 = Activator.bundleContext.registerService(
 				PrintService.SERVICE_NAME, stringPrint1, null);
 		ServiceReference ref = reg1.getReference();
 		IEclipseContext child = EclipseContextFactory.create(context, null);

@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 
-package org.eclipse.e4.core.services.internal.context;
+package org.eclipse.e4.core.tests.services.internal.annotations;
 
 import org.eclipse.e4.core.services.context.IEclipseContext;
 import org.eclipse.e4.core.services.context.spi.ContextFunction;
@@ -30,6 +30,6 @@ public class AddContextFunction extends ContextFunction {
 		Integer yInt = (Integer) context.get("y");
 		int sum = xInt == null ? 0 : xInt.intValue();
 		sum += yInt == null ? 0 : yInt.intValue();
-		return new Integer(sum);
+		return sum;
 	}
 }

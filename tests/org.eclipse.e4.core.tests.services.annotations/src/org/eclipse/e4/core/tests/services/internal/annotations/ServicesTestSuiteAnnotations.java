@@ -9,27 +9,19 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 
-package org.eclipse.e4.core.services.internal.context;
+package org.eclipse.e4.core.tests.services.internal.annotations;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-/**
- * Runs all e4 core service tests.
- */
-public class ServicesTestSuite extends TestSuite {
+public class ServicesTestSuiteAnnotations extends TestSuite {
 	public static Test suite() {
-		return new ServicesTestSuite();
+		return new ServicesTestSuiteAnnotations();
 	}
 
-	public ServicesTestSuite() {
-		addTestSuite(EclipseContextTest.class);
-		addTestSuite(ContextInjectionTest.class);
-		addTestSuite(ContextInjectionDisposeTest.class);
-		addTestSuite(ContextInjectionFactoryTest.class);
-		addTestSuite(ContextDynamicTest.class);
-		addTestSuite(JSONObjectTest.class);
-		addTestSuite(ReparentingTest.class);
-		addTestSuite(RunAndTrackTest.class);
+	public ServicesTestSuiteAnnotations() {
+		addTestSuite(AnnotationsInjectionTest.class);
+		addTestSuite(TestConstructorInjection.class);
+		addTestSuite(ServiceContextTest.class);
 	}
 }

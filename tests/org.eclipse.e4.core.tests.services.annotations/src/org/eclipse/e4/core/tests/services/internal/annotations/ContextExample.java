@@ -9,16 +9,18 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 
-package org.eclipse.e4.core.services.internal.context;
+package org.eclipse.e4.core.tests.services.internal.annotations;
 
 import java.text.NumberFormat;
+
 import javax.inject.Inject;
+
 import org.eclipse.e4.core.services.context.EclipseContextFactory;
 import org.eclipse.e4.core.services.context.IContextFunction;
 import org.eclipse.e4.core.services.context.IEclipseContext;
 import org.eclipse.e4.core.services.context.spi.ContextFunction;
 import org.eclipse.e4.core.services.context.spi.ContextInjectionFactory;
-import org.eclipse.e4.core.tests.services.TestActivator;
+import org.eclipse.e4.core.tests.services.annotations.Activator;
 import org.osgi.framework.ServiceRegistration;
 
 /**
@@ -102,10 +104,10 @@ public class ContextExample {
 	}
 
 	public void runWithService() {
-		ServiceRegistration reg = TestActivator.bundleContext.registerService(IPaletteService.class
+		ServiceRegistration reg = Activator.bundleContext.registerService(IPaletteService.class
 				.getName(), new PaletteImpl(Color.BLUE), null);
 		IEclipseContext context = EclipseContextFactory
-				.createServiceContext(TestActivator.bundleContext);
+				.createServiceContext(Activator.bundleContext);
 		Crayon crayon = new Crayon();
 		ContextInjectionFactory.inject(crayon, context);
 		crayon.draw();
@@ -141,7 +143,6 @@ public class ContextExample {
 				total = (Double) context.get("price") * (1.0 + (Double) context.get("tax"));
 			}
 
-			@Override
 			public String toString() {
 				return "calculator";
 			}

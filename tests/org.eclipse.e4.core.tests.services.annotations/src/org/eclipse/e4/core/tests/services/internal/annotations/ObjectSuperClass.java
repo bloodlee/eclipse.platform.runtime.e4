@@ -8,8 +8,10 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.e4.core.services.internal.context;
+package org.eclipse.e4.core.tests.services.internal.annotations;
 
+import org.eclipse.e4.core.services.annotations.PostConstruct;
+import org.eclipse.e4.core.services.annotations.PreDestroy;
 import org.eclipse.e4.core.services.context.IEclipseContext;
 
 /**
@@ -53,13 +55,30 @@ public class ObjectSuperClass {
 		return myString;
 	}
 
-	public void inject_OverriddenMethod(Float f) {
+	public void injectOverriddenMethod(Float f) {
 		setOverriddenCalled++;
 	}
 
-	public void inject_StringViaMethod(String string) {
+	public void injectStringViaMethod(String string) {
 		myString = string;
 		setStringCalled++;
+	}
+
+	@PostConstruct
+	public void superPostConstruct() {
+		// record setter invocation counts at time of post construct invocation
+		postConstructSetStringCalled = setStringCalled;
+		superPostConstructCount++;
+	}
+
+	@PreDestroy
+	public void superPreDestroy() {
+		superPreDestroyCount++;
+	}
+
+	@PreDestroy()
+	public void overriddenPreDestroy() {
+		//
 	}
 
 }
