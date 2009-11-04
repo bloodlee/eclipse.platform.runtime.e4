@@ -20,6 +20,7 @@ import junit.framework.TestSuite;
 
 import org.eclipse.e4.core.services.IDisposable;
 import org.eclipse.e4.core.services.annotations.PostConstruct;
+import org.eclipse.e4.core.services.annotations.PreDestroy;
 import org.eclipse.e4.core.services.context.EclipseContextFactory;
 import org.eclipse.e4.core.services.context.IEclipseContext;
 import org.eclipse.e4.core.services.context.spi.ContextInjectionFactory;
@@ -260,4 +261,75 @@ public class AnnotationsInjectionTest extends TestCase {
 		assertEquals(1, userObject.overriddenPreDestroyCount);
 	}
 
+	public void testInvoke() {
+		class TestData {
+			public String value;
+			
+			public TestData(String tmp) {
+				value = tmp;
+			}
+		}
+		class Injected {
+			public String myString;
+			
+			public Injected() {
+				// placeholder
+			}
+
+			@SuppressWarnings("unused")
+			public String doSomething(@Named("testing123") TestData data) {
+				myString = data.value;
+				return "true";
+			}
+		}
+		IEclipseContext context = EclipseContextFactory.create();
+		
+		TestData methodValue = new TestData("abc");
+		context.set("testing123", methodValue);
+		Injected object = new Injected();
+		assertNull(object.myString);
+		
+		assertEquals("true", ContextInjectionFactory.invoke(object, "doSomething", context, null));
+		assertEquals("abc", object.myString);
+	}
+	
+	public void testPreDestroy() {
+		class TestData {
+		}
+		class Injected {
+			int preDestoryCalled = 0;
+			public TestData value;
+			
+			@Inject
+			public TestData directFieldInjection;
+
+			@SuppressWarnings("unused")
+			@PreDestroy
+			public void aboutToClose() {
+				preDestoryCalled++;
+				assertNotNull(value);
+				assertNotNull(directFieldInjection);
+			}
+
+			@SuppressWarnings("unused")
+			@Inject
+			public void setData(TestData arg) {
+				value = arg;
+			}
+		}
+		IEclipseContext context = EclipseContextFactory.create();
+		TestData methodValue = new TestData();
+		context.set(TestData.class.getName(), methodValue);
+		
+		Injected object = new Injected();
+		ContextInjectionFactory.inject(object, context);
+		assertNotNull(object.value);
+		assertNotNull(object.directFieldInjection);
+		
+		((IDisposable)context).dispose();
+		
+		assertEquals(1, object.preDestoryCalled);
+		assertNull(object.value);
+		assertNull(object.directFieldInjection);
+	}
 }
