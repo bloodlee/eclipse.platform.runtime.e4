@@ -14,9 +14,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.inject.Qualifier;
 
 import org.eclipse.e4.core.services.annotations.Optional;
@@ -29,7 +32,9 @@ import org.eclipse.e4.core.services.internal.context.InjectionProperties;
 public class AnnotationsSupport {
 
 	static public InjectionProperties getInjectProperties(Field field) {
-		return getInjectProperties(field.getAnnotations());
+		InjectionProperties property = getInjectProperties(field.getAnnotations());
+		processProvider(field.getGenericType(), property);
+		return property;
 	}
 
 	static public InjectionProperties getInjectProperties(Method method) {
@@ -45,6 +50,7 @@ public class AnnotationsSupport {
 		InjectionProperties[] result = new InjectionProperties[annotations.length]; 
 		for(int i = 0 ; i < annotations.length; i++)
 			result[i] = getInjectProperties(annotations[i]);
+		processProviders(constructor.getGenericParameterTypes(), result);
 		return result;
 	}
 
@@ -53,14 +59,16 @@ public class AnnotationsSupport {
 		InjectionProperties[] result = new InjectionProperties[annotations.length]; 
 		for(int i = 0 ; i < annotations.length; i++)
 			result[i] = getInjectProperties(annotations[i]);
+		processProviders(method.getGenericParameterTypes(), result);
 		return result;
 	}
-	
+
 	static private InjectionProperties getInjectProperties(Annotation[] annotations) {
 		boolean inject = false;
 		boolean optional = false;
 		String named = null;
 		String qualifier = null;
+		Class<?> qualifierClass = null;
 		for (Annotation annotation : annotations) {
 			if (annotation instanceof Inject) {
 				inject = true;
@@ -69,11 +77,19 @@ public class AnnotationsSupport {
 				optional = ((Optional) annotation).value();
 			} else if (annotation instanceof Named)
 				named = ((Named) annotation).value();
-			else if (annotation instanceof Qualifier)
-				qualifier = ((Qualifier) annotation).getClass().getName(); // XXX check that this is a simple name
+			else if (annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
+				Type type = annotation.annotationType();
+				if (type instanceof Class<?>) {
+					qualifierClass = (Class<?>) type;
+					qualifier = qualifierClass.getName();
+				}
+			}
 		}
 		String injectName = (named != null) ? named : qualifier;
-		return new InjectionProperties(inject, injectName, optional);
+		InjectionProperties result = new InjectionProperties(inject, injectName, optional);
+		if (qualifierClass != null)
+			result.setQualifier(qualifierClass);
+		return result;
 	}
 
 	static public boolean isPostConstruct(Method method) {
@@ -92,6 +108,36 @@ public class AnnotationsSupport {
 				return true;
 		}
 		return false;
+	}
+	
+	static private void processProviders(Type[] params, InjectionProperties[] properties) {
+		// Go backwards: match last params to the last properties. You'd expect that 
+		// params.length == properties.length, but it is not always the case. See:
+		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5087240
+		int paramsPos = params.length - 1;
+		for(int i = properties.length - 1 ; i >= 0 && paramsPos >= 0; paramsPos--, i--) {
+			processProvider(params[paramsPos], properties[i]);
+		}
+	}
+	
+	static private void processProvider(Type param, InjectionProperties property) {
+		if (!(param instanceof ParameterizedType))
+			return;
+		Type rawType = ((ParameterizedType)param).getRawType();
+		if (!(rawType instanceof Class<?>))
+			return;
+		boolean isProvider = ((Class<?>) rawType).isAssignableFrom(Provider.class);
+		if (!isProvider)
+			return;
+		Type[] actualTypes = ((ParameterizedType)param).getActualTypeArguments();
+		if (actualTypes.length != 1)
+			return;
+		if (!(actualTypes[0] instanceof Class<?>))
+			return;
+		Class<?> clazz = (Class<?>)actualTypes[0];
+		if (property.getQualifier() != null)
+			clazz = property.getQualifier();
+		property.setProvider(new ContextProvider(property.getPropertyName(), clazz));
 	}
 
 }
