@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.eclipse.e4.core.services.IDisposable;
+import org.eclipse.e4.core.services.annotations.Optional;
 import org.eclipse.e4.core.services.annotations.PostConstruct;
 import org.eclipse.e4.core.services.annotations.PreDestroy;
 import org.eclipse.e4.core.services.context.EclipseContextFactory;
@@ -228,6 +229,34 @@ public class AnnotationsInjectionTest extends TestCase {
 		assertEquals(testString, userObject.s);
 		assertEquals(testDouble, userObject.d);
 		assertEquals(testFloat, userObject.f);
+	}
+	
+	public void testOptionalInvoke() {
+		
+		class TestObject {
+			public int called = 0;
+
+		    @SuppressWarnings("unused")
+			public String doSomething(@Optional String param) {
+		    	called++;
+		        return param;
+		    }
+		}
+
+	    IEclipseContext context = EclipseContextFactory.create();
+	    Object notAnObject = new Object();
+	    TestObject testObject = new TestObject();
+	    context.set(String.class.getName(), testObject);
+	    
+	    Object result = ContextInjectionFactory.invoke(testObject, "doSomething", context, notAnObject);
+	    assertNull(result);
+	    assertEquals(1, testObject.called);
+
+	    String string = "sample";
+	    context.set(String.class.getName(), string);
+	    result = ContextInjectionFactory.invoke(testObject, "doSomething", context, notAnObject);
+	    assertEquals(string, result);
+	    assertEquals(2, testObject.called);
 	}
 
 	/**
