@@ -13,30 +13,31 @@ package org.eclipse.e4.core.services.annotations;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
-
-import javax.inject.Qualifier;
+import java.lang.annotation.Target;
 
 /**
- * A boolean qualifier used to specify if injection is mandatory
- * or optional. Typically, if the injector is unable to find a 
- * value to inject, a <code>null</code> value will be injected.
- * However, if this qualifier is set to <code>false</code>, then 
- * injection will fail.
- *
+ * This annotation can be applied to methods, fields, and parameters to 
+ * mark them as optional for the dependency injection. Typically, if the injector is 
+ * unable to find a value to inject, then injection will fail. However, if this annotation 
+ * is specified, then:
+ * <ul>
+ * <li> for parameters:  a <code>null</code> value will be injected; </li>
+ * <li> for methods: the method calls will be skipped; </li>
+ * <li> for fields: the values will not be injected. </li>
+ * </ul>
  * <p>Example usage:
- *
  * <pre>
  *   public class Car {
- *     &#064;Inject &#064;Optional(false) Integer identificationNumber;
+ *     &#064;Inject &#064;Optional void setOverdrive(OverdriveMode mode);
  *     ...
  *   }
  *  </pre>
  *  </p>
  */
-@Qualifier
 @Documented
+@Target( { ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RUNTIME)
 public @interface Optional {
-	boolean value() default true;
 }

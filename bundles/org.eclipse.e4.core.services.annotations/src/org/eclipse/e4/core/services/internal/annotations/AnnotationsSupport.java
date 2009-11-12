@@ -70,12 +70,11 @@ public class AnnotationsSupport {
 		String qualifier = null;
 		Class<?> qualifierClass = null;
 		for (Annotation annotation : annotations) {
-			if (annotation instanceof Inject) {
+			if (annotation instanceof Inject)
 				inject = true;
-			} else if (annotation instanceof Optional) {
-				inject = true;
-				optional = ((Optional) annotation).value();
-			} else if (annotation instanceof Named)
+			else if (annotation instanceof Optional)
+				optional = true;
+			else if (annotation instanceof Named)
 				named = ((Named) annotation).value();
 			else if (annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
 				Type type = annotation.annotationType();

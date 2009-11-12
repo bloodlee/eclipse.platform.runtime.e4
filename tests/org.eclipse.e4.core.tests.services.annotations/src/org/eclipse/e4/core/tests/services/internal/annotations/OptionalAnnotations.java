@@ -12,11 +12,12 @@
 package org.eclipse.e4.core.tests.services.internal.annotations;
 
 import javax.inject.Inject;
+
 import org.eclipse.e4.core.services.annotations.Optional;
 
 public class OptionalAnnotations {
 
-	@Inject @Optional(true)
+	@Inject @Optional
 	public Float f = null;
 	
 	public Double d;
@@ -30,14 +31,14 @@ public class OptionalAnnotations {
 		// placehodler
 	}
 
-	@Inject @Optional(true)
+	@Inject @Optional
 	public void methodOptional(Double d) {
 		this.d = d;
 		methodOptionalCalled++;
 	}
 
 	@Inject
-	public void methodRequired(@Optional(true) String s, Integer i) {
+	public void methodRequired(@Optional String s, Integer i) {
 		this.s = s;
 		this.i = i;
 		methodRequiredCalled++;
