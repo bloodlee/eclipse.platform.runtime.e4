@@ -18,7 +18,7 @@ import org.eclipse.e4.core.services.context.IEclipseContext;
  * Test class to check injection mechanism into classes with inheritance
  */
 public class ObjectSubClass extends ObjectSuperClass {
-	/* package */Integer inject_Integer;
+	/* package */Integer inject__Integer;
 
 	private Object myObject;
 
@@ -49,7 +49,7 @@ public class ObjectSubClass extends ObjectSuperClass {
 	}
 
 	public Integer getInteger() {
-		return inject_Integer;
+		return inject__Integer;
 	}
 
 	public Object getObjectViaMethod() {

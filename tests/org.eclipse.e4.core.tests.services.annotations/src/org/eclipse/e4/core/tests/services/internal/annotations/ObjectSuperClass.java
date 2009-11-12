@@ -20,7 +20,7 @@ import org.eclipse.e4.core.services.context.IEclipseContext;
 public class ObjectSuperClass {
 
 	protected IEclipseContext context;
-	private String inject_String;
+	private String inject__String;
 	private String myString;
 
 	public int postConstructSetStringCalled;
@@ -48,7 +48,7 @@ public class ObjectSuperClass {
 	}
 
 	public String getString() {
-		return inject_String;
+		return inject__String;
 	}
 
 	public String getStringViaMethod() {
