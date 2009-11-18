@@ -264,8 +264,7 @@ public class AnnotationsInjectionTest extends TestCase {
 	 */
 	public void testInheritedSpecialMethods() {
 		IEclipseContext context = EclipseContextFactory.create();
-		context.set(Integer.class.getSimpleName(), new Integer(123));
-		context.set(String.class.getSimpleName(), new String("abc"));
+		context.set(Integer.class.getName(), new Integer(123));
 		context.set(String.class.getName(), new String("abc"));
 		context.set(Float.class.getName(), new Float(12.3));
 

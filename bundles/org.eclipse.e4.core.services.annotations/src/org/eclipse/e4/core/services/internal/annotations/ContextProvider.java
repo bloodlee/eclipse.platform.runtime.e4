@@ -12,40 +12,27 @@ package org.eclipse.e4.core.services.internal.annotations;
 
 import javax.inject.Provider;
 
-import org.eclipse.e4.core.services.context.IEclipseContext;
-import org.eclipse.e4.core.services.internal.context.IContextProvider;
+import org.eclipse.e4.core.services.injector.IObjectProvider;
+import org.eclipse.e4.core.services.internal.context.InjectionProperties;
 
-
-public class ContextProvider<T> implements Provider<T>, IContextProvider {
+// TBD rename ProviderImpl
+public class ContextProvider<T> implements Provider<T> {
 	
-	private IEclipseContext context;
-	private Class<?> clazz;
-	private String name;
+	private IObjectProvider objectProvider;
+	private InjectionProperties properties;
 	
-	
-	public ContextProvider(String name, Class<?> clazz) {
-		this.name = name;
-		this.clazz = clazz;
+	public ContextProvider(String name, Class<?> clazz, IObjectProvider objectProvider) {
+		properties = new InjectionProperties(true, name, false, clazz);
+		this.objectProvider = objectProvider;
 	}
 	
-	public void setContext(IEclipseContext context) {
-		this.context = context;
-	}
-	
-	// TBD scope processing
 	@SuppressWarnings("unchecked")
 	public T get() {
-		if (name != null) {
-			if (context.containsKey(name))
-				return (T) context.get(name); // TBD where do we put class type checks?
-		}
-		if (clazz == null)
+		try {
+			return (T) objectProvider.get(properties);
+		} catch (ClassCastException e) {
 			return null;
-		// is there such class already described in the context?
-		String key = clazz.getName();
-		if (context.containsKey(key))
-			return (T) context.get(key); // TBD where do we put class type checks?
-		return (T) context.make(clazz);
+		}
 	}
 
 }

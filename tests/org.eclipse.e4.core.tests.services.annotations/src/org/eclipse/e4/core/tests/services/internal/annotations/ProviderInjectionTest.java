@@ -70,31 +70,32 @@ public class ProviderInjectionTest extends TestCase {
 
 	public synchronized void testInvokeWithProvider() {
 
-		String testString = new String("abc");
+		TestData testData = new TestData("abc");
 		// create context
 		IEclipseContext context = EclipseContextFactory.create();
-		context.set(String.class.getName(), testString);
+		context.set(TestData.class.getName(), testData);
 		context.set(ProviderInjectionTest.class.getName(), this); // needed for inner class constructor
 
 		TestInvokeClass userObject = new TestInvokeClass();
 		assertEquals(1, ContextInjectionFactory.invoke(userObject, "execute", context, null));
 		
 		assertNotNull(userObject.provider.get());
-		assertEquals(testString, userObject.provider.get().data);
+		assertEquals("abc", userObject.provider.get().data);
 	}
 	
 	public synchronized void testConstructorWithProvider() {
-		String testString = new String("abc");
+		TestData testData = new TestData("abc");
 		// create context
 		IEclipseContext context = EclipseContextFactory.create();
-		context.set(String.class.getName(), testString);
+		context.set(TestData.class.getName(), testData);
 		context.set(ProviderInjectionTest.class.getName(), this); // needed for inner class constructor
 
 		TestConstructorClass userObject = (TestConstructorClass) context.make(TestConstructorClass.class);
 		
+		assertNotNull(userObject);
 		assertNotNull(userObject.provider);
 		assertNotNull(userObject.provider.get());
-		assertEquals(testString, userObject.provider.get().data);
+		assertEquals("abc", userObject.provider.get().data);
 	}
 
 }

@@ -25,118 +25,127 @@ import javax.inject.Qualifier;
 import org.eclipse.e4.core.services.annotations.Optional;
 import org.eclipse.e4.core.services.annotations.PostConstruct;
 import org.eclipse.e4.core.services.annotations.PreDestroy;
+import org.eclipse.e4.core.services.injector.IObjectProvider;
 import org.eclipse.e4.core.services.internal.context.InjectionProperties;
-
-// TBD make all injections optional unless "mandatory" is specified
 
 public class AnnotationsSupport {
 
-	static public InjectionProperties getInjectProperties(Field field) {
-		InjectionProperties property = getInjectProperties(field.getAnnotations());
-		processProvider(field.getGenericType(), property);
+	private IObjectProvider context;
+
+	public AnnotationsSupport(IObjectProvider context) {
+		this.context = context;
+	}
+	
+	public InjectionProperties getInjectProperties(Field field) {
+		InjectionProperties property = getInjectProperties(field.getAnnotations(), field.getGenericType());
 		return property;
 	}
 
-	static public InjectionProperties getInjectProperties(Method method) {
-		return getInjectProperties(method.getAnnotations());
+	public InjectionProperties getInjectProperties(Method method) {
+		return getInjectProperties(method.getAnnotations(), null);
 	}
 	
-	static public InjectionProperties getInjectProperties(Constructor constructor) {
-		return getInjectProperties(constructor.getAnnotations());
+	public InjectionProperties getInjectProperties(Constructor constructor) {
+		return getInjectProperties(constructor.getAnnotations(), null);
 	}
 	
-	static public InjectionProperties[] getInjectParamsProperties(Constructor constructor) {
+	public InjectionProperties[] getInjectParamsProperties(Constructor constructor) {
 		Annotation[][] annotations = constructor.getParameterAnnotations();
-		InjectionProperties[] result = new InjectionProperties[annotations.length]; 
-		for(int i = 0 ; i < annotations.length; i++)
-			result[i] = getInjectProperties(annotations[i]);
-		processProviders(constructor.getGenericParameterTypes(), result);
-		return result;
+		Type[] logicalParams = constructor.getGenericParameterTypes();
+		// JDK bug: different methods see / don't see generated args for nested classes
+		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5087240
+		Class<?>[] compilerParams = constructor.getParameterTypes();
+		if (compilerParams.length > logicalParams.length) { 
+			Type[] tmp = new Type[compilerParams.length];
+			System.arraycopy(compilerParams, 0, tmp, 0, compilerParams.length - logicalParams.length);
+			System.arraycopy(logicalParams, 0, tmp, compilerParams.length - logicalParams.length, logicalParams.length);
+			logicalParams = tmp;
+		}
+		return  getInjectProperties(annotations, logicalParams);
 	}
 
-	static public InjectionProperties[] getInjectParamProperties(Method method) {
+	public InjectionProperties[] getInjectParamProperties(Method method) {
 		Annotation[][] annotations = method.getParameterAnnotations();
-		InjectionProperties[] result = new InjectionProperties[annotations.length]; 
-		for(int i = 0 ; i < annotations.length; i++)
-			result[i] = getInjectProperties(annotations[i]);
-		processProviders(method.getGenericParameterTypes(), result);
+		Type[] params = method.getGenericParameterTypes();
+		return  getInjectProperties(annotations, params);
+	}
+
+	private InjectionProperties[] getInjectProperties(Annotation[][] annotations, Type[] params) {
+		InjectionProperties[] result = new InjectionProperties[params.length]; 
+		for(int i = 0 ; i <  params.length; i++)
+			result[i] = getInjectProperties(annotations[i], params[i]);
 		return result;
 	}
 
-	static private InjectionProperties getInjectProperties(Annotation[] annotations) {
+	private InjectionProperties getInjectProperties(Annotation[] annotations, Type param) {
+		// Process annotations
 		boolean inject = false;
 		boolean optional = false;
 		String named = null;
 		String qualifier = null;
 		Class<?> qualifierClass = null;
-		for (Annotation annotation : annotations) {
-			if (annotation instanceof Inject)
-				inject = true;
-			else if (annotation instanceof Optional)
-				optional = true;
-			else if (annotation instanceof Named)
-				named = ((Named) annotation).value();
-			else if (annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
-				Type type = annotation.annotationType();
-				if (type instanceof Class<?>) {
-					qualifierClass = (Class<?>) type;
-					qualifier = qualifierClass.getName();
+		if (annotations != null) {
+			for (Annotation annotation : annotations) {
+				if (annotation instanceof Inject)
+					inject = true;
+				else if (annotation instanceof Optional)
+					optional = true;
+				else if (annotation instanceof Named)
+					named = ((Named) annotation).value();
+				else if (annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
+					Type type = annotation.annotationType();
+					if (type instanceof Class<?>) {
+						qualifierClass = (Class<?>) type;
+						qualifier = qualifierClass.getName();
+					}
 				}
 			}
 		}
 		String injectName = (named != null) ? named : qualifier;
-		InjectionProperties result = new InjectionProperties(inject, injectName, optional);
+		Class<?> elementClass =  getElementClass(param); 
+		InjectionProperties result = new InjectionProperties(inject, injectName, optional, elementClass);
 		if (qualifierClass != null)
 			result.setQualifier(qualifierClass);
-		return result;
-	}
-
-	static public boolean isPostConstruct(Method method) {
-		Annotation[] annotations = method.getAnnotations();
-		for (Annotation annotation : annotations) {
-			if (annotation instanceof PostConstruct)
-				return true;
-		}
-		return false;
-	}
-	
-	static public boolean isPreDestory(Method method) {
-		Annotation[] annotations = method.getAnnotations();
-		for (Annotation annotation : annotations) {
-			if (annotation instanceof PreDestroy)
-				return true;
-		}
-		return false;
-	}
-	
-	static private void processProviders(Type[] params, InjectionProperties[] properties) {
-		// Go backwards: match last params to the last properties. You'd expect that 
-		// params.length == properties.length, but it is not always the case. See:
-		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5087240
-		int paramsPos = params.length - 1;
-		for(int i = properties.length - 1 ; i >= 0 && paramsPos >= 0; paramsPos--, i--) {
-			processProvider(params[paramsPos], properties[i]);
-		}
-	}
-	
-	static private void processProvider(Type param, InjectionProperties property) {
+		
+		// Process providers
 		if (!(param instanceof ParameterizedType))
-			return;
+			return result;
 		Type rawType = ((ParameterizedType)param).getRawType();
 		if (!(rawType instanceof Class<?>))
-			return;
+			return result;
 		boolean isProvider = ((Class<?>) rawType).isAssignableFrom(Provider.class);
 		if (!isProvider)
-			return;
+			return result;
 		Type[] actualTypes = ((ParameterizedType)param).getActualTypeArguments();
 		if (actualTypes.length != 1)
-			return;
+			return result;
 		if (!(actualTypes[0] instanceof Class<?>))
-			return;
+			return result;
 		Class<?> clazz = (Class<?>)actualTypes[0];
-		if (property.getQualifier() != null)
-			clazz = property.getQualifier();
-		property.setProvider(new ContextProvider(property.getPropertyName(), clazz));
+		result.setProvider(new ContextProvider(result.getPropertyName(), clazz, context));
+		
+		return result;
+	}
+	
+	private Class<?> getElementClass(Type type) {
+		if (type == null)
+			return null;
+		if (type instanceof Class<?>)
+			return (Class<?>) type;
+		if (type instanceof ParameterizedType) {
+			Type rawType = ((ParameterizedType)type).getRawType();
+			if (rawType instanceof Class<?>)
+				return (Class<?>) rawType;
+		}
+		System.err.println("Unexpected type"); // TBD improve
+		return null;
 	}
 
+	public boolean isPostConstruct(Method method) {
+		return method.isAnnotationPresent(PostConstruct.class);
+	}
+	
+	public boolean isPreDestory(Method method) {
+		return method.isAnnotationPresent(PreDestroy.class);
+	}
 }
