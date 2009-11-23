@@ -17,6 +17,7 @@ import junit.framework.TestCase;
 
 import org.eclipse.e4.core.services.context.EclipseContextFactory;
 import org.eclipse.e4.core.services.context.IEclipseContext;
+import org.eclipse.e4.core.services.context.spi.ContextInjectionFactory;
 
 public class TestConstructorInjection extends TestCase {
 
@@ -96,7 +97,7 @@ public class TestConstructorInjection extends TestCase {
 		// add an extra argument for the inner class constructors
 		context.set(TestConstructorInjection.class.getName(), this);
 
-		Object result = context.make(TestConstructorObject.class);
+		Object result = ContextInjectionFactory.make(TestConstructorObject.class, context);
 		assertNotNull(result);
 		assertTrue(result instanceof TestConstructorObject);
 

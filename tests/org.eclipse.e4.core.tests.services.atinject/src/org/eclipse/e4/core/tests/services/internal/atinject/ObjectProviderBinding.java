@@ -119,6 +119,10 @@ public class ObjectProviderBinding implements IObjectProvider {
 		this.injector = injector;
 	}
 	
+	public Injector getInjector() {
+		return injector;
+	}
+	
 	public String getKey(IObjectDescriptor key) {
 		Class<?> elementClass = key.getElementClass();
 		String result = (elementClass == null) ? "" : elementClass.getName();

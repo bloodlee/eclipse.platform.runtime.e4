@@ -90,7 +90,7 @@ public class ProviderInjectionTest extends TestCase {
 		context.set(TestData.class.getName(), testData);
 		context.set(ProviderInjectionTest.class.getName(), this); // needed for inner class constructor
 
-		TestConstructorClass userObject = (TestConstructorClass) context.make(TestConstructorClass.class);
+		TestConstructorClass userObject = (TestConstructorClass) ContextInjectionFactory.make(TestConstructorClass.class, context);
 		
 		assertNotNull(userObject);
 		assertNotNull(userObject.provider);
