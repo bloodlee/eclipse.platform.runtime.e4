@@ -77,18 +77,16 @@ public class ServiceContextTest extends TestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		context = EclipseContextFactory.createServiceContext(Activator.bundleContext);
+		context = EclipseContextFactory.getServiceContext(Activator.bundleContext);
 	}
 
 	protected void tearDown() throws Exception {
-		if (context instanceof IDisposable)
-			((IDisposable) context).dispose();
 		super.tearDown();
 	}
 
 	public void testDeclarativeService() {
 		IEclipseContext context = EclipseContextFactory
-				.createServiceContext(Activator.bundleContext);
+				.getServiceContext(Activator.bundleContext);
 		assertTrue(context.containsKey("sum"));
 		assertEquals(0, context.get("sum"));
 		context.set("x", 1);
@@ -162,7 +160,7 @@ public class ServiceContextTest extends TestCase {
 		ServiceRegistration reg = Activator.bundleContext.registerService(IPaletteService.class
 				.getName(), new PaletteImpl(Color.BLUE), null);
 		IEclipseContext context = EclipseContextFactory
-				.createServiceContext(Activator.bundleContext);
+				.getServiceContext(Activator.bundleContext);
 		Crayon crayon = new Crayon();
 		ContextInjectionFactory.inject(crayon, context);
 		crayon.draw();
