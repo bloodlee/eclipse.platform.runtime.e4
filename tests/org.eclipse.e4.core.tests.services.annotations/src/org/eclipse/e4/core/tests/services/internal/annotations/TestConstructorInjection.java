@@ -21,7 +21,7 @@ import org.eclipse.e4.core.services.context.spi.ContextInjectionFactory;
 
 public class TestConstructorInjection extends TestCase {
 
-	protected class TestConstructorObject {
+	static class TestConstructorObject {
 
 		public boolean defaultConstructorCalled = false;
 		public boolean constructorIntStrCalled = false;
@@ -93,9 +93,6 @@ public class TestConstructorInjection extends TestCase {
 		context.set(Float.class.getName(), floatValue);
 		Character charValue = new Character('v');
 		context.set(Character.class.getName(), charValue);
-
-		// add an extra argument for the inner class constructors
-		context.set(TestConstructorInjection.class.getName(), this);
 
 		Object result = ContextInjectionFactory.make(TestConstructorObject.class, context);
 		assertNotNull(result);
