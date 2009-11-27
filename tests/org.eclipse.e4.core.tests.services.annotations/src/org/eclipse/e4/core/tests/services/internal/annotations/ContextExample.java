@@ -107,7 +107,7 @@ public class ContextExample {
 		ServiceRegistration reg = Activator.bundleContext.registerService(IPaletteService.class
 				.getName(), new PaletteImpl(Color.BLUE), null);
 		IEclipseContext context = EclipseContextFactory
-				.createServiceContext(Activator.bundleContext);
+				.getServiceContext(Activator.bundleContext);
 		Crayon crayon = new Crayon();
 		ContextInjectionFactory.inject(crayon, context);
 		crayon.draw();
