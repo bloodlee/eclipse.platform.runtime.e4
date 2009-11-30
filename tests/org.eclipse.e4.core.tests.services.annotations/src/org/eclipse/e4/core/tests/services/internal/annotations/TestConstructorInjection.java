@@ -11,6 +11,8 @@
 
 package org.eclipse.e4.core.tests.services.internal.annotations;
 
+import java.lang.reflect.InvocationTargetException;
+
 import javax.inject.Inject;
 
 import junit.framework.TestCase;
@@ -81,7 +83,7 @@ public class TestConstructorInjection extends TestCase {
 		}
 	}
 
-	public void testConstructorInjection() {
+	public void testConstructorInjection() throws InvocationTargetException, InstantiationException {
 		IEclipseContext context = EclipseContextFactory.create();
 		Integer intValue = new Integer(123);
 		context.set(Integer.class.getName(), intValue);

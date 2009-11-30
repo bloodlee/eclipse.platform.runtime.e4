@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.e4.core.tests.services.internal.annotations;
 
+import java.lang.reflect.InvocationTargetException;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -231,7 +233,7 @@ public class AnnotationsInjectionTest extends TestCase {
 		assertEquals(testFloat, userObject.f);
 	}
 	
-	public void testOptionalInvoke() {
+	public void testOptionalInvoke() throws InvocationTargetException {
 		
 		class TestObject {
 			public int called = 0;
@@ -289,7 +291,7 @@ public class AnnotationsInjectionTest extends TestCase {
 		assertEquals(1, userObject.overriddenPreDestroyCount);
 	}
 
-	public void testInvoke() {
+	public void testInvoke() throws InvocationTargetException {
 		class TestData {
 			public String value;
 			

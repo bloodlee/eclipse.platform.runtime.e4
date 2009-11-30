@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.e4.core.tests.services.internal.atinject;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -107,7 +108,16 @@ public class ObjectProviderBinding implements IObjectProvider {
 		if (isSingleton && singletonCache.containsKey(clazz))
 			return singletonCache.get(clazz);
 		// TBD #make and #inject are separate operations due to IEclipseContext#runAndTrack.
-		Object value = injector.make(binding.getValueClass());
+		Object value;
+		try {
+			value = injector.make(binding.getValueClass());
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+			return null;
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+			return null;
+		}
 		if (value != null)
 			injector.inject(value);
 		if (isSingleton)

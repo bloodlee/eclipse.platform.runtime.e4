@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.e4.core.tests.services.internal.annotations;
 
+import java.lang.reflect.InvocationTargetException;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 
@@ -68,7 +70,7 @@ public class ProviderInjectionTest extends TestCase {
 		super(name);
 	}
 
-	public synchronized void testInvokeWithProvider() {
+	public synchronized void testInvokeWithProvider() throws InvocationTargetException {
 
 		TestData testData = new TestData("abc");
 		// create context
@@ -83,7 +85,7 @@ public class ProviderInjectionTest extends TestCase {
 		assertEquals("abc", userObject.provider.get().data);
 	}
 	
-	public synchronized void testConstructorWithProvider() {
+	public synchronized void testConstructorWithProvider() throws InvocationTargetException, InstantiationException {
 		TestData testData = new TestData("abc");
 		// create context
 		IEclipseContext context = EclipseContextFactory.create();
