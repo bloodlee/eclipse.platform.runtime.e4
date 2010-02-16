@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,9 +15,11 @@ import java.text.NumberFormat;
 
 import javax.inject.Inject;
 
+import org.eclipse.e4.core.services.context.ContextChangeEvent;
 import org.eclipse.e4.core.services.context.EclipseContextFactory;
 import org.eclipse.e4.core.services.context.IContextFunction;
 import org.eclipse.e4.core.services.context.IEclipseContext;
+import org.eclipse.e4.core.services.context.IRunAndTrack;
 import org.eclipse.e4.core.services.context.spi.ContextFunction;
 import org.eclipse.e4.core.services.context.spi.ContextInjectionFactory;
 import org.eclipse.e4.core.tests.services.annotations.Activator;
@@ -138,15 +140,16 @@ public class ContextExample {
 		final IEclipseContext context = EclipseContextFactory.create();
 		context.set("price", 19.99);
 		context.set("tax", 0.05);
-		context.runAndTrack(new Runnable() {
-			public void run() {
+		context.runAndTrack(new IRunAndTrack() {
+			public boolean notify(ContextChangeEvent event) {
 				total = (Double) context.get("price") * (1.0 + (Double) context.get("tax"));
+				return true;
 			}
 
 			public String toString() {
 				return "calculator";
 			}
-		});
+		}, null);
 		print(total);
 		context.set("tax", 0.07);
 		print(total);
