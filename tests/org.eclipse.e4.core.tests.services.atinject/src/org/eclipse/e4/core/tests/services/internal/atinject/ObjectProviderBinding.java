@@ -16,6 +16,9 @@ import java.util.HashMap;
 
 import javax.inject.Singleton;
 
+import org.eclipse.e4.core.services.context.ContextChangeEvent;
+import org.eclipse.e4.core.services.context.EclipseContextFactory;
+import org.eclipse.e4.core.services.context.IRunAndTrack;
 import org.eclipse.e4.core.services.injector.IObjectDescriptor;
 import org.eclipse.e4.core.services.injector.IObjectProvider;
 import org.eclipse.e4.core.services.injector.Injector;
@@ -148,6 +151,12 @@ public class ObjectProviderBinding implements IObjectProvider {
 				return binding;
 		}
 		return null;
+	}
+
+	public void runAndTrack(IRunAndTrack runnable, Object[] args) {
+		// there is no dynamic support; this is one time only
+		ContextChangeEvent event = EclipseContextFactory.createContextEvent(this, ContextChangeEvent.INITIAL, null, null, null); 
+		runnable.notify(event);
 	}
 
 }
