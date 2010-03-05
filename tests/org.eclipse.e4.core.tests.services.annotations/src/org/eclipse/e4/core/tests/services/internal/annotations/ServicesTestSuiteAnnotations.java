@@ -26,5 +26,6 @@ public class ServicesTestSuiteAnnotations extends TestSuite {
 		addTestSuite(ProviderInjectionTest.class);
 		addTestSuite(InjectionUpdateTest.class);
 		addTestSuite(DisposingReferencedContextTest.class);
+		addTestSuite(InjectionOrderTest.class);
 	}
 }
