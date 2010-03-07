@@ -22,9 +22,11 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Qualifier;
 
+import org.eclipse.e4.core.services.annotations.EventHandler;
 import org.eclipse.e4.core.services.annotations.Optional;
 import org.eclipse.e4.core.services.annotations.PostConstruct;
 import org.eclipse.e4.core.services.annotations.PreDestroy;
+import org.eclipse.e4.core.services.annotations.UIEventHandler;
 import org.eclipse.e4.core.services.injector.IObjectProvider;
 import org.eclipse.e4.core.services.internal.context.InjectionProperties;
 
@@ -83,16 +85,25 @@ public class AnnotationsSupport {
 		boolean optional = false;
 		String named = null;
 		String qualifier = null;
+		String handlesEvent = null;
+		boolean eventHeadless = true;
 		Class<?> qualifierClass = null;
 		if (annotations != null) {
 			for (Annotation annotation : annotations) {
 				if (annotation instanceof Inject)
 					inject = true;
-				else if (annotation instanceof Optional)
+				else if (annotation instanceof EventHandler) {
+					handlesEvent = ((EventHandler) annotation).value();
+					eventHeadless = true;
+				} else if (annotation instanceof UIEventHandler) {
+					handlesEvent = ((UIEventHandler) annotation).value();
+					eventHeadless = false;
+				} else if (annotation instanceof Optional)
 					optional = true;
 				else if (annotation instanceof Named)
 					named = ((Named) annotation).value();
-				else if (annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
+				else if (annotation.annotationType().isAnnotationPresent(
+						Qualifier.class)) {
 					Type type = annotation.annotationType();
 					if (type instanceof Class<?>) {
 						qualifierClass = (Class<?>) type;
@@ -106,6 +117,10 @@ public class AnnotationsSupport {
 		InjectionProperties result = new InjectionProperties(inject, injectName, optional, elementClass);
 		if (qualifierClass != null)
 			result.setQualifier(qualifierClass);
+		if (handlesEvent != null) {
+			result.setHandlesEvent(handlesEvent);
+			result.setEventHeadless(eventHeadless);
+		}
 		
 		// Process providers
 		if (!(param instanceof ParameterizedType))
