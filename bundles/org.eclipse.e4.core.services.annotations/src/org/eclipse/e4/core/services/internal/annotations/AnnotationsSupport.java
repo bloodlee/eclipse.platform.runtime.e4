@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import javax.inject.Provider;
 import javax.inject.Qualifier;
 
 import org.eclipse.e4.core.services.annotations.EventHandler;
+import org.eclipse.e4.core.services.annotations.GroupUpdates;
 import org.eclipse.e4.core.services.annotations.Optional;
 import org.eclipse.e4.core.services.annotations.PostConstruct;
 import org.eclipse.e4.core.services.annotations.PreDestroy;
@@ -88,6 +89,7 @@ public class AnnotationsSupport {
 		String handlesEvent = null;
 		boolean eventHeadless = true;
 		Class<?> qualifierClass = null;
+		boolean groupUpdates = false;
 		if (annotations != null) {
 			for (Annotation annotation : annotations) {
 				if (annotation instanceof Inject)
@@ -102,6 +104,8 @@ public class AnnotationsSupport {
 					optional = true;
 				else if (annotation instanceof Named)
 					named = ((Named) annotation).value();
+				else if (annotation instanceof GroupUpdates)
+					groupUpdates = true;
 				else if (annotation.annotationType().isAnnotationPresent(
 						Qualifier.class)) {
 					Type type = annotation.annotationType();
@@ -121,6 +125,8 @@ public class AnnotationsSupport {
 			result.setHandlesEvent(handlesEvent);
 			result.setEventHeadless(eventHeadless);
 		}
+		if (groupUpdates)
+			result.setGroupUpdates(true);
 		
 		// Process providers
 		if (!(param instanceof ParameterizedType))
