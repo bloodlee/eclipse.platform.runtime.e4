@@ -28,31 +28,30 @@ import org.eclipse.e4.core.services.annotations.Optional;
 import org.eclipse.e4.core.services.annotations.PostConstruct;
 import org.eclipse.e4.core.services.annotations.PreDestroy;
 import org.eclipse.e4.core.services.annotations.UIEventHandler;
+import org.eclipse.e4.core.services.injector.IObjectDescriptor;
 import org.eclipse.e4.core.services.injector.IObjectProvider;
 import org.eclipse.e4.core.services.internal.context.InjectionProperties;
 
 public class AnnotationsSupport {
 
-	private IObjectProvider context;
-
-	public AnnotationsSupport(IObjectProvider context) {
-		this.context = context;
+	public AnnotationsSupport() {
+		// placeholder
 	}
 	
-	public InjectionProperties getInjectProperties(Field field) {
-		InjectionProperties property = getInjectProperties(field.getAnnotations(), field.getGenericType());
+	public InjectionProperties getInjectProperties(Field field, IObjectProvider context) {
+		InjectionProperties property = getInjectProperties(field.getAnnotations(), field.getGenericType(), context);
 		return property;
 	}
 
-	public InjectionProperties getInjectProperties(Method method) {
-		return getInjectProperties(method.getAnnotations(), null);
+	public InjectionProperties getInjectProperties(Method method, IObjectProvider context) {
+		return getInjectProperties(method.getAnnotations(), null, context);
 	}
 	
-	public InjectionProperties getInjectProperties(Constructor constructor) {
-		return getInjectProperties(constructor.getAnnotations(), null);
+	public InjectionProperties getInjectProperties(Constructor constructor, IObjectProvider context) {
+		return getInjectProperties(constructor.getAnnotations(), null, context);
 	}
 	
-	public InjectionProperties[] getInjectParamsProperties(Constructor constructor) {
+	public InjectionProperties[] getInjectParamsProperties(Constructor constructor, IObjectProvider context) {
 		Annotation[][] annotations = constructor.getParameterAnnotations();
 		Type[] logicalParams = constructor.getGenericParameterTypes();
 		// JDK bug: different methods see / don't see generated args for nested classes
@@ -64,23 +63,23 @@ public class AnnotationsSupport {
 			System.arraycopy(logicalParams, 0, tmp, compilerParams.length - logicalParams.length, logicalParams.length);
 			logicalParams = tmp;
 		}
-		return  getInjectProperties(annotations, logicalParams);
+		return  getInjectProperties(annotations, logicalParams, context);
 	}
 
-	public InjectionProperties[] getInjectParamProperties(Method method) {
+	public InjectionProperties[] getInjectParamProperties(Method method, IObjectProvider context) {
 		Annotation[][] annotations = method.getParameterAnnotations();
 		Type[] params = method.getGenericParameterTypes();
-		return  getInjectProperties(annotations, params);
+		return  getInjectProperties(annotations, params, context);
 	}
 
-	private InjectionProperties[] getInjectProperties(Annotation[][] annotations, Type[] params) {
+	private InjectionProperties[] getInjectProperties(Annotation[][] annotations, Type[] params, IObjectProvider context) {
 		InjectionProperties[] result = new InjectionProperties[params.length]; 
 		for(int i = 0 ; i <  params.length; i++)
-			result[i] = getInjectProperties(annotations[i], params[i]);
+			result[i] = getInjectProperties(annotations[i], params[i], context);
 		return result;
 	}
 
-	private InjectionProperties getInjectProperties(Annotation[] annotations, Type param) {
+	private InjectionProperties getInjectProperties(Annotation[] annotations, Type param, IObjectProvider context) {
 		// Process annotations
 		boolean inject = false;
 		boolean optional = false;
@@ -117,8 +116,7 @@ public class AnnotationsSupport {
 			}
 		}
 		String injectName = (named != null) ? named : qualifier;
-		Class<?> elementClass =  getElementClass(param); 
-		InjectionProperties result = new InjectionProperties(inject, injectName, optional, elementClass);
+		InjectionProperties result = new InjectionProperties(inject, injectName, optional);
 		if (qualifierClass != null)
 			result.setQualifier(qualifierClass);
 		if (handlesEvent != null) {
@@ -143,25 +141,12 @@ public class AnnotationsSupport {
 		if (!(actualTypes[0] instanceof Class<?>))
 			return result;
 		Class<?> clazz = (Class<?>)actualTypes[0];
-		result.setProvider(new ContextProvider(result.getPropertyName(), clazz, context));
+		IObjectDescriptor desc = context.makeDescriptor(result.getPropertyName(), clazz);
+		result.setProvider(new ProviderImpl(desc, context));
 		
 		return result;
 	}
 	
-	private Class<?> getElementClass(Type type) {
-		if (type == null)
-			return null;
-		if (type instanceof Class<?>)
-			return (Class<?>) type;
-		if (type instanceof ParameterizedType) {
-			Type rawType = ((ParameterizedType)type).getRawType();
-			if (rawType instanceof Class<?>)
-				return (Class<?>) rawType;
-		}
-		System.err.println("Unexpected type"); // TBD improve
-		return null;
-	}
-
 	public boolean isPostConstruct(Method method) {
 		return method.isAnnotationPresent(PostConstruct.class);
 	}

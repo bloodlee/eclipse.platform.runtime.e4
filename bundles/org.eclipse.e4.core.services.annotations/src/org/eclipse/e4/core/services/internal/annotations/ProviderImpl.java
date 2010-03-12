@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,24 +12,23 @@ package org.eclipse.e4.core.services.internal.annotations;
 
 import javax.inject.Provider;
 
+import org.eclipse.e4.core.services.injector.IObjectDescriptor;
 import org.eclipse.e4.core.services.injector.IObjectProvider;
-import org.eclipse.e4.core.services.internal.context.InjectionProperties;
 
-// TBD rename ProviderImpl
-public class ContextProvider<T> implements Provider<T> {
+public class ProviderImpl<T> implements Provider<T> {
 	
-	private IObjectProvider objectProvider;
-	private InjectionProperties properties;
+	final private IObjectProvider objectProvider;
+	final private IObjectDescriptor objectDescriptor;
 	
-	public ContextProvider(String name, Class<?> clazz, IObjectProvider objectProvider) {
-		properties = new InjectionProperties(true, name, false, clazz);
-		this.objectProvider = objectProvider;
+	public ProviderImpl(IObjectDescriptor descriptor, IObjectProvider provider) {
+		objectDescriptor = descriptor;
+		objectProvider = provider;
 	}
 	
 	@SuppressWarnings("unchecked")
 	public T get() {
 		try {
-			return (T) objectProvider.get(properties);
+			return (T) objectProvider.get(objectDescriptor);
 		} catch (ClassCastException e) {
 			return null;
 		}

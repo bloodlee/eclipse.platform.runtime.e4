@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,11 +21,9 @@ import org.eclipse.e4.core.services.context.EclipseContextFactory;
 import org.eclipse.e4.core.services.context.IRunAndTrack;
 import org.eclipse.e4.core.services.injector.IObjectDescriptor;
 import org.eclipse.e4.core.services.injector.IObjectProvider;
-import org.eclipse.e4.core.services.injector.Injector;
+import org.eclipse.e4.core.services.injector.InjectorFactory;
 
 public class ObjectProviderBinding implements IObjectProvider {
-
-	private Injector injector;
 
 	public class KeyBinding {
 		private String key;
@@ -89,19 +87,6 @@ public class ObjectProviderBinding implements IObjectProvider {
 		return findBinding(properties) != null;
 	}
 	
-	// Convenience access method - makes descriptor based on the class name
-	public Object get(final Class<?> clazz) {
-		IObjectDescriptor desc = new IObjectDescriptor() {
-			public Class getElementClass() {
-				return clazz;
-			}
-			public String getPropertyName() {
-				return null;
-			}
-		};
-		return get(desc);
-	}
-
 	public Object get(IObjectDescriptor properties) {
 		KeyBinding binding = findBinding(properties);
 		if (binding == null)
@@ -110,10 +95,9 @@ public class ObjectProviderBinding implements IObjectProvider {
 		boolean isSingleton = clazz.isAnnotationPresent(Singleton.class);
 		if (isSingleton && singletonCache.containsKey(clazz))
 			return singletonCache.get(clazz);
-		// TBD #make and #inject are separate operations due to IEclipseContext#runAndTrack.
 		Object value;
 		try {
-			value = injector.make(binding.getValueClass());
+			value = InjectorFactory.getInjector().make(binding.getValueClass(), this);
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 			return null;
@@ -121,31 +105,13 @@ public class ObjectProviderBinding implements IObjectProvider {
 			e.printStackTrace();
 			return null;
 		}
-		if (value != null)
-			injector.inject(value);
 		if (isSingleton)
 			singletonCache.put(clazz, value);
 		return value;
 	}
 
-	public void setInjector(Injector injector) {
-		this.injector = injector;
-	}
-	
-	public Injector getInjector() {
-		return injector;
-	}
-	
-	public String getKey(IObjectDescriptor key) {
-		Class<?> elementClass = key.getElementClass();
-		String result = (elementClass == null) ? "" : elementClass.getName();
-		if (key.getPropertyName() != null)
-			result += "," + key.getPropertyName();
-		return result;
-	}
-	
 	private KeyBinding findBinding(IObjectDescriptor properties) {
-		String key = getKey(properties);
+		String key = properties.getKey();
 		for (KeyBinding binding : bindings) {
 			if (key.equals(binding.getKey()))
 				return binding;
@@ -157,6 +123,10 @@ public class ObjectProviderBinding implements IObjectProvider {
 		// there is no dynamic support; this is one time only
 		ContextChangeEvent event = EclipseContextFactory.createContextEvent(this, ContextChangeEvent.INITIAL, null, null, null); 
 		runnable.notify(event);
+	}
+
+	public IObjectDescriptor makeDescriptor(String description, Class clazz) {
+		return new ObjectDescriptorBinding(description, clazz);
 	}
 
 }
