@@ -28,8 +28,8 @@ import org.eclipse.e4.core.services.annotations.Optional;
 import org.eclipse.e4.core.services.annotations.PostConstruct;
 import org.eclipse.e4.core.services.annotations.PreDestroy;
 import org.eclipse.e4.core.services.annotations.UIEventHandler;
-import org.eclipse.e4.core.services.injector.IObjectDescriptor;
 import org.eclipse.e4.core.services.injector.IObjectProvider;
+import org.eclipse.e4.core.services.injector.ObjectDescriptor;
 import org.eclipse.e4.core.services.internal.context.InjectionProperties;
 
 public class AnnotationsSupport {
@@ -141,7 +141,7 @@ public class AnnotationsSupport {
 		if (!(actualTypes[0] instanceof Class<?>))
 			return result;
 		Class<?> clazz = (Class<?>)actualTypes[0];
-		IObjectDescriptor desc = context.makeDescriptor(result.getPropertyName(), clazz);
+		ObjectDescriptor desc = ObjectDescriptor.make(clazz, result.getPropertyName());
 		result.setProvider(new ProviderImpl(desc, context));
 		
 		return result;

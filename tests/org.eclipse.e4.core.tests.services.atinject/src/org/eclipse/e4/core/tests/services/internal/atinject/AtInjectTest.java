@@ -26,15 +26,15 @@ import org.atinject.tck.auto.V8Engine;
 import org.atinject.tck.auto.accessories.Cupholder;
 import org.atinject.tck.auto.accessories.SpareTire;
 import org.eclipse.e4.core.services.injector.IInjector;
-import org.eclipse.e4.core.services.injector.IObjectDescriptor;
 import org.eclipse.e4.core.services.injector.InjectorFactory;
+import org.eclipse.e4.core.services.injector.ObjectDescriptor;
 
 public class AtInjectTest extends TestSuite {
 
 	public static Test suite() {
 		ObjectProviderBinding objectProvider = new ObjectProviderBinding();
 		IInjector injector = InjectorFactory.getInjector();
-		
+
 		// TCK description:
 		objectProvider.addBinding(Car.class).inject(Convertible.class);
 		objectProvider.addBinding(Seat.class).named(Drivers.class.getName()).inject(DriversSeat.class);
@@ -55,8 +55,7 @@ public class AtInjectTest extends TestSuite {
 		injector.injectStatic(Tire.class, objectProvider);
 		injector.injectStatic(SpareTire.class, objectProvider);
 
-		IObjectDescriptor desc = objectProvider.makeDescriptor(null, Car.class);
-		Car car = (Car) objectProvider.get(desc);
+		Car car = (Car) objectProvider.get(ObjectDescriptor.make(Car.class));
 		return Tck.testsFor(car, true, true);
 	}
 }

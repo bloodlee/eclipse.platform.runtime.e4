@@ -14,14 +14,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.eclipse.e4.core.services.context.ContextChangeEvent;
 import org.eclipse.e4.core.services.context.EclipseContextFactory;
 import org.eclipse.e4.core.services.context.IRunAndTrack;
-import org.eclipse.e4.core.services.injector.IObjectDescriptor;
 import org.eclipse.e4.core.services.injector.IObjectProvider;
 import org.eclipse.e4.core.services.injector.InjectorFactory;
+import org.eclipse.e4.core.services.injector.ObjectDescriptor;
 
 public class ObjectProviderBinding implements IObjectProvider {
 
@@ -83,11 +84,11 @@ public class ObjectProviderBinding implements IObjectProvider {
 		return binding;
 	}
 	
-	public boolean containsKey(IObjectDescriptor properties) {
+	public boolean containsKey(ObjectDescriptor properties) {
 		return findBinding(properties) != null;
 	}
 	
-	public Object get(IObjectDescriptor properties) {
+	public Object get(ObjectDescriptor properties) {
 		KeyBinding binding = findBinding(properties);
 		if (binding == null)
 			return null;
@@ -110,8 +111,8 @@ public class ObjectProviderBinding implements IObjectProvider {
 		return value;
 	}
 
-	private KeyBinding findBinding(IObjectDescriptor properties) {
-		String key = properties.getKey();
+	private KeyBinding findBinding(ObjectDescriptor properties) {
+		String key = getKey(properties);
 		for (KeyBinding binding : bindings) {
 			if (key.equals(binding.getKey()))
 				return binding;
@@ -125,8 +126,12 @@ public class ObjectProviderBinding implements IObjectProvider {
 		runnable.notify(event);
 	}
 
-	public IObjectDescriptor makeDescriptor(String description, Class clazz) {
-		return new ObjectDescriptorBinding(description, clazz);
+	private String getKey(ObjectDescriptor descriptor) {
+		Class<?> elementClass = descriptor.getElementClass();
+		String result = (elementClass == null) ? "" : elementClass.getName();
+		if (descriptor.hasQualifier(Named.class.getName()))
+			result += "," + descriptor.getQualifierValue(Named.class.getName());
+		return result;
 	}
 
 }

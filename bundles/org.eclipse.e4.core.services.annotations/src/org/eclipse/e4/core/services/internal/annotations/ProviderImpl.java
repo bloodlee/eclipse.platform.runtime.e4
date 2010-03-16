@@ -12,15 +12,15 @@ package org.eclipse.e4.core.services.internal.annotations;
 
 import javax.inject.Provider;
 
-import org.eclipse.e4.core.services.injector.IObjectDescriptor;
 import org.eclipse.e4.core.services.injector.IObjectProvider;
+import org.eclipse.e4.core.services.injector.ObjectDescriptor;
 
 public class ProviderImpl<T> implements Provider<T> {
 	
 	final private IObjectProvider objectProvider;
-	final private IObjectDescriptor objectDescriptor;
+	final private ObjectDescriptor objectDescriptor;
 	
-	public ProviderImpl(IObjectDescriptor descriptor, IObjectProvider provider) {
+	public ProviderImpl(ObjectDescriptor descriptor, IObjectProvider provider) {
 		objectDescriptor = descriptor;
 		objectProvider = provider;
 	}
