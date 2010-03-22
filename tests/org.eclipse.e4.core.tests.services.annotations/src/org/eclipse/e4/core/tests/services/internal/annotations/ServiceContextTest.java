@@ -82,11 +82,11 @@ public class ServiceContextTest extends TestCase {
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
+		((IDisposable)context).dispose();
+		context = null;
 	}
 
 	public void testDeclarativeService() {
-		IEclipseContext context = EclipseContextFactory
-				.getServiceContext(Activator.bundleContext);
 		assertTrue(context.containsKey("sum"));
 		assertEquals(0, context.get("sum"));
 		context.set("x", 1);
@@ -112,8 +112,7 @@ public class ServiceContextTest extends TestCase {
 		Printer userObject = new Printer();
 
 		StringPrintService stringPrint1 = new StringPrintService();
-		ServiceRegistration reg1 = Activator.bundleContext.registerService(
-				PrintService.SERVICE_NAME, stringPrint1, null);
+		ServiceRegistration reg1 = Activator.bundleContext.registerService(PrintService.SERVICE_NAME, stringPrint1, null);
 
 		ContextInjectionFactory.inject(userObject, context);
 		userObject.print("test");
@@ -128,8 +127,7 @@ public class ServiceContextTest extends TestCase {
 
 		// register a different service implementation
 		StringPrintService stringPrint2 = new StringPrintService();
-		ServiceRegistration reg2 = Activator.bundleContext.registerService(
-				PrintService.SERVICE_NAME, stringPrint2, null);
+		ServiceRegistration reg2 = Activator.bundleContext.registerService(PrintService.SERVICE_NAME, stringPrint2, null);
 		userObject.print("yet another test");
 		// the second string should have the value
 		assertEquals("2.0", "test", stringPrint1.toString());
@@ -143,24 +141,24 @@ public class ServiceContextTest extends TestCase {
 	 */
 	public void testServiceRemovalOnContextDispose() {
 		StringPrintService stringPrint1 = new StringPrintService();
-		ServiceRegistration reg1 = Activator.bundleContext.registerService(
-				PrintService.SERVICE_NAME, stringPrint1, null);
-		ServiceReference ref = reg1.getReference();
+		ServiceRegistration reg1 = Activator.bundleContext.registerService(PrintService.SERVICE_NAME, stringPrint1, null);
+		try {
+			ServiceReference ref = reg1.getReference();
 
-		PrintService service = (PrintService) context.get(PrintService.SERVICE_NAME);
-		assertEquals("1.0", stringPrint1, service);
-		assertEquals("1.1", 1, ref.getUsingBundles().length);
-		service = null;
-		((IDisposable) context).dispose();
-		assertNull("2.0", ref.getUsingBundles());
-		reg1.unregister();
+			PrintService service = (PrintService) context.get(PrintService.SERVICE_NAME);
+			assertEquals("1.0", stringPrint1, service);
+			assertEquals("1.1", 1, ref.getUsingBundles().length);
+			service = null;
+			((IDisposable) context).dispose();
+			assertNull("2.0", ref.getUsingBundles());
+		} finally {
+			reg1.unregister();
+		}
 	}
 
 	public void testServiceExample() {
-		ServiceRegistration reg = Activator.bundleContext.registerService(IPaletteService.class
-				.getName(), new PaletteImpl(Color.BLUE), null);
-		IEclipseContext context = EclipseContextFactory
-				.getServiceContext(Activator.bundleContext);
+		ServiceRegistration reg = Activator.bundleContext.registerService(IPaletteService.class.getName(), new PaletteImpl(Color.BLUE), null);
+		IEclipseContext context = EclipseContextFactory.getServiceContext(Activator.bundleContext);
 		Crayon crayon = new Crayon();
 		ContextInjectionFactory.inject(crayon, context);
 		crayon.draw();
@@ -173,9 +171,9 @@ public class ServiceContextTest extends TestCase {
 	 */
 	public void testServiceRemovalOnChildContextDispose() {
 		StringPrintService stringPrint1 = new StringPrintService();
-		ServiceRegistration reg1 = Activator.bundleContext.registerService(
-				PrintService.SERVICE_NAME, stringPrint1, null);
+		ServiceRegistration reg1 = Activator.bundleContext.registerService(PrintService.SERVICE_NAME, stringPrint1, null);
 		ServiceReference ref = reg1.getReference();
+		assertNull("0.1", ref.getUsingBundles());
 		IEclipseContext child = EclipseContextFactory.create(context, null);
 		child.set(IContextConstants.DEBUG_STRING, "child");
 
@@ -190,9 +188,16 @@ public class ServiceContextTest extends TestCase {
 		System.gc();
 		System.runFinalization();
 		System.gc();
-		// must call a method on context to give it a chance to clean up its references
-		assertTrue("2.0", context.containsKey(DebugOptions.class.getName()));
-		assertNull("2.1", ref.getUsingBundles());
+		//create and dispose another child that uses the service
+		child = EclipseContextFactory.create(context, null);
+		child.set(IContextConstants.DEBUG_STRING, "child-2");
+		service = (PrintService) child.get(PrintService.SERVICE_NAME);
+		service = null;
+		((IDisposable)child).dispose();
+		child = null;
+
+		//now there should be no service references, even though child1 was never disposed
+		assertNull("2.2", ref.getUsingBundles());
 
 		reg1.unregister();
 
