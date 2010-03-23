@@ -55,6 +55,12 @@ public class InjectionOrderTest extends TestCase {
 		}
 	}
 
+	/**
+	 * Tests to ensure that the injection/uninjection order of fields is correct.
+	 * <p>
+	 * See bug 304859.
+	 * </p>
+	 */
 	public void testDisposeMethod() throws Exception {
 		// create a context
 		IEclipseContext appContext = EclipseContextFactory.create();
@@ -72,7 +78,13 @@ public class InjectionOrderTest extends TestCase {
 		// check that the second 'set' invocation did not alter the order of notifications
 		assertTrue("@PreDestroy was incorrectly called after the method was uninjected", injectTargetMethod.nonNull);
 	}
-	
+
+	/**
+	 * Tests to ensure that the injection/uninjection order of methods is correct.
+	 * <p>
+	 * See bug 304859.
+	 * </p>
+	 */
 	public void testDisposeField() throws Exception {
 		// create a context
 		IEclipseContext appContext = EclipseContextFactory.create();
