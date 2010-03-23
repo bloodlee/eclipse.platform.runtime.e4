@@ -24,6 +24,9 @@ import org.eclipse.e4.core.services.context.spi.ContextInjectionFactory;
 public class InjectionOrderTest extends TestCase {
 
 	public static class InjectTargetMethod {
+		
+		boolean nonNull = false;
+		
 		Object o;
 
 		@Inject
@@ -33,37 +36,57 @@ public class InjectionOrderTest extends TestCase {
 
 		@PreDestroy
 		void pd() {
-			assertNotNull(o);
+			// methods should always be uninjected after @PD is called
+			nonNull = o != null;
 		}
 	}
 
 	public static class InjectTargetField {
+		
+		boolean nonNull = false;
+		
 		@Inject @Named("inject")
 		Object o;
 
 		@PreDestroy
 		void pd() {
-			assertNotNull(o);
+			// fields should always be uninjected after @PD is called
+			nonNull = o != null;
 		}
 	}
 
 	public void testDisposeMethod() throws Exception {
+		// create a context
 		IEclipseContext appContext = EclipseContextFactory.create();
+		// set a value
 		appContext.set("inject", "a");
 
-		ContextInjectionFactory.make(InjectTargetMethod.class, appContext);
+		// instantiate the object
+		InjectTargetMethod injectTargetMethod = (InjectTargetMethod) ContextInjectionFactory.make(InjectTargetMethod.class, appContext);
+		// change the requested value so another injection occurs
 		appContext.set("inject", "b");
 
+		// now we dispose the context 
 		((IDisposable) appContext).dispose();
+		
+		// check that the second 'set' invocation did not alter the order of notifications
+		assertTrue("@PreDestroy was incorrectly called after the method was uninjected", injectTargetMethod.nonNull);
 	}
 	
 	public void testDisposeField() throws Exception {
+		// create a context
 		IEclipseContext appContext = EclipseContextFactory.create();
+		// set a value
 		appContext.set("inject", "a");
 
-		ContextInjectionFactory.make(InjectTargetField.class, appContext);
+		// instantiate the object
+		InjectTargetField injectTargetField = (InjectTargetField) ContextInjectionFactory.make(InjectTargetField.class, appContext);
+		// change the requested value so another injection occurs
 		appContext.set("inject", "b");
 
+		// now we dispose the context 
 		((IDisposable) appContext).dispose();
+		
+		assertTrue("@PreDestroy was incorrectly called after the field was uninjected", injectTargetField.nonNull);
 	}
 }
