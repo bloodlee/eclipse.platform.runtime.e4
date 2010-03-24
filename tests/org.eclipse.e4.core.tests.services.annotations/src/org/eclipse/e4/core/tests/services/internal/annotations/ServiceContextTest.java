@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,15 +12,14 @@
 package org.eclipse.e4.core.tests.services.internal.annotations;
 
 import javax.inject.Inject;
-
 import junit.framework.TestCase;
-
 import org.eclipse.e4.core.services.IDisposable;
 import org.eclipse.e4.core.services.context.EclipseContextFactory;
 import org.eclipse.e4.core.services.context.IEclipseContext;
 import org.eclipse.e4.core.services.context.spi.ContextInjectionFactory;
 import org.eclipse.e4.core.services.context.spi.IContextConstants;
 import org.eclipse.e4.core.tests.services.annotations.Activator;
+import org.eclipse.e4.internal.core.services.osgi.OSGiContextStrategy;
 import org.eclipse.osgi.service.debug.DebugOptions;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
@@ -77,7 +76,8 @@ public class ServiceContextTest extends TestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		context = EclipseContextFactory.getServiceContext(Activator.bundleContext);
+		//don't use the global shared service context to avoid contamination across tests
+		context = EclipseContextFactory.create(null, new OSGiContextStrategy(Activator.bundleContext));
 	}
 
 	protected void tearDown() throws Exception {
