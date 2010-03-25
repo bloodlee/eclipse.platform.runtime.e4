@@ -11,11 +11,12 @@
 
 package org.eclipse.e4.core.tests.services.internal.annotations;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.inject.Inject;
 import junit.framework.TestCase;
 import org.eclipse.e4.core.services.IDisposable;
-import org.eclipse.e4.core.services.context.EclipseContextFactory;
-import org.eclipse.e4.core.services.context.IEclipseContext;
+import org.eclipse.e4.core.services.context.*;
 import org.eclipse.e4.core.services.context.spi.ContextInjectionFactory;
 import org.eclipse.e4.core.services.context.spi.IContextConstants;
 import org.eclipse.e4.core.tests.services.annotations.Activator;
@@ -73,16 +74,26 @@ public class ServiceContextTest extends TestCase {
 	}
 
 	private IEclipseContext context;
+	private final List<ServiceRegistration> registrations = new ArrayList<ServiceRegistration>();
 
 	protected void setUp() throws Exception {
 		super.setUp();
 		//don't use the global shared service context to avoid contamination across tests
 		context = EclipseContextFactory.create(null, new OSGiContextStrategy(Activator.bundleContext));
+		registrations.clear();
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		((IDisposable)context).dispose();
+		((IDisposable) context).dispose();
+		for (ServiceRegistration reg : registrations) {
+			try {
+				reg.unregister();
+			} catch (IllegalStateException e) {
+				//ignore
+			}
+		}
+		registrations.clear();
 		context = null;
 	}
 
@@ -136,6 +147,10 @@ public class ServiceContextTest extends TestCase {
 		assertNull("2.2", userObject.printer);
 	}
 
+	protected void ensureUnregistered(ServiceRegistration reg) {
+		registrations.add(reg);
+	}
+
 	/**
 	 * Tests that OSGi services are released when their context is disposed.
 	 */
@@ -154,6 +169,26 @@ public class ServiceContextTest extends TestCase {
 		} finally {
 			reg1.unregister();
 		}
+	}
+
+	public void testRecursiveServiceRemoval() {
+		ServiceRegistration reg1 = Activator.bundleContext.registerService(PrintService.SERVICE_NAME, new StringPrintService(), null);
+		final IEclipseContext child = EclipseContextFactory.create(context, null);
+		final IEclipseContext child2 = EclipseContextFactory.create(context, null);
+		child.get(PrintService.SERVICE_NAME);
+		child2.get(PrintService.SERVICE_NAME);
+		ensureUnregistered(reg1);
+		final boolean[] done = new boolean[] {false};
+		context.runAndTrack(new IRunAndTrack() {
+			public boolean notify(ContextChangeEvent event) {
+				if (context.get(PrintService.SERVICE_NAME) == null) {
+						((IDisposable) child).dispose();
+					done[0] = true;
+				}
+				return true;
+			}
+		}, null);
+		reg1.unregister();
 	}
 
 	public void testServiceExample() {
@@ -193,7 +228,7 @@ public class ServiceContextTest extends TestCase {
 		child.set(IContextConstants.DEBUG_STRING, "child-2");
 		service = (PrintService) child.get(PrintService.SERVICE_NAME);
 		service = null;
-		((IDisposable)child).dispose();
+		((IDisposable) child).dispose();
 		child = null;
 
 		//now there should be no service references, even though child1 was never disposed
