@@ -22,13 +22,15 @@ import junit.framework.TestSuite;
 import org.eclipse.e4.core.services.context.EclipseContextFactory;
 import org.eclipse.e4.core.services.context.IEclipseContext;
 import org.eclipse.e4.core.services.context.spi.ContextInjectionFactory;
+import org.eclipse.e4.core.services.injector.IInjector;
+import org.eclipse.e4.core.services.injector.InjectorFactory;
 
 /**
  * Testing provider interface
  */
 public class ProviderInjectionTest extends TestCase {
 
-	public class TestData {
+	static public class TestData {
 		
 		public String data;
 		
@@ -38,7 +40,7 @@ public class ProviderInjectionTest extends TestCase {
 		}
 	}
 	
-	public class TestInvokeClass {
+	static public class TestInvokeClass {
 		public Provider<TestData> provider;
 		public TestInvokeClass() {
 			// placeholder
@@ -49,7 +51,7 @@ public class ProviderInjectionTest extends TestCase {
 		}
 	}
 	
-	public class TestConstructorClass {
+	static public class TestConstructorClass {
 		public Provider<TestData> provider;
 		
 		@Inject
@@ -72,11 +74,11 @@ public class ProviderInjectionTest extends TestCase {
 
 	public synchronized void testInvokeWithProvider() throws InvocationTargetException {
 
-		TestData testData = new TestData("abc");
 		// create context
 		IEclipseContext context = EclipseContextFactory.create();
-		context.set(TestData.class.getName(), testData);
-		context.set(ProviderInjectionTest.class.getName(), this); // needed for inner class constructor
+		context.set(String.class.getName(), "abc");
+		IInjector injector = InjectorFactory.getInjector();
+		injector.addBinding(TestData.class);
 
 		TestInvokeClass userObject = new TestInvokeClass();
 		assertEquals(1, ContextInjectionFactory.invoke(userObject, "execute", context, null));
@@ -86,11 +88,11 @@ public class ProviderInjectionTest extends TestCase {
 	}
 	
 	public synchronized void testConstructorWithProvider() throws InvocationTargetException, InstantiationException {
-		TestData testData = new TestData("abc");
 		// create context
 		IEclipseContext context = EclipseContextFactory.create();
-		context.set(TestData.class.getName(), testData);
-		context.set(ProviderInjectionTest.class.getName(), this); // needed for inner class constructor
+		context.set(String.class.getName(), "abc");
+		IInjector injector = InjectorFactory.getInjector();
+		injector.addBinding(TestData.class);
 
 		TestConstructorClass userObject = (TestConstructorClass) ContextInjectionFactory.make(TestConstructorClass.class, context);
 		

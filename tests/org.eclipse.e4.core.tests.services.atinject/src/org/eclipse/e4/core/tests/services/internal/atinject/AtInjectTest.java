@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.e4.core.tests.services.internal.atinject;
 
+import java.lang.reflect.InvocationTargetException;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -27,35 +29,35 @@ import org.atinject.tck.auto.accessories.Cupholder;
 import org.atinject.tck.auto.accessories.SpareTire;
 import org.eclipse.e4.core.services.injector.IInjector;
 import org.eclipse.e4.core.services.injector.InjectorFactory;
-import org.eclipse.e4.core.services.injector.ObjectDescriptor;
 
 public class AtInjectTest extends TestSuite {
 
-	public static Test suite() {
-		ObjectProviderBinding objectProvider = new ObjectProviderBinding();
+	public static Test suite() throws InvocationTargetException, InstantiationException {
+//		ObjectProviderBinding objectProvider = new ObjectProviderBinding();
 		IInjector injector = InjectorFactory.getInjector();
 
 		// TCK description:
-		objectProvider.addBinding(Car.class).inject(Convertible.class);
-		objectProvider.addBinding(Seat.class).named(Drivers.class.getName()).inject(DriversSeat.class);
-		objectProvider.addBinding(Engine.class).inject(V8Engine.class);
-		objectProvider.addBinding(Tire.class).named("spare").inject(SpareTire.class);
+		injector.addBinding(Car.class).implementedBy(Convertible.class);
+		injector.addBinding(Seat.class).named(Drivers.class.getName()).implementedBy(DriversSeat.class);
+		injector.addBinding(Engine.class).implementedBy(V8Engine.class);
+		injector.addBinding(Tire.class).named("spare").implementedBy(SpareTire.class);
 
-		objectProvider.addBinding(Cupholder.class);
-		objectProvider.addBinding(Tire.class);
-		objectProvider.addBinding(FuelTank.class);
+		injector.addBinding(Cupholder.class);
+		injector.addBinding(Tire.class);
+		injector.addBinding(FuelTank.class);
 
 		// missing: - TBD - should those bindings be added automatically?
-		objectProvider.addBinding(SpareTire.class);
-		objectProvider.addBinding(Seat.class);
-		objectProvider.addBinding(DriversSeat.class);
+		injector.addBinding(SpareTire.class);
+		injector.addBinding(Seat.class);
+		injector.addBinding(DriversSeat.class);
 
 		// inject statics
-		injector.injectStatic(Convertible.class, objectProvider);
-		injector.injectStatic(Tire.class, objectProvider);
-		injector.injectStatic(SpareTire.class, objectProvider);
+		injector.injectStatic(Convertible.class, null);
+		injector.injectStatic(Tire.class, null);
+		injector.injectStatic(SpareTire.class, null);
 
-		Car car = (Car) objectProvider.get(ObjectDescriptor.make(Car.class));
+		Car car = (Car) injector.make(Car.class, null);
+//		Car car = (Car) objectProvider.get(ObjectDescriptor.make(Car.class, false));
 		return Tck.testsFor(car, true, true);
 	}
 }

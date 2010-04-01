@@ -14,12 +14,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Provider;
 import javax.inject.Qualifier;
 
 import org.eclipse.e4.core.services.annotations.EventHandler;
@@ -28,8 +26,6 @@ import org.eclipse.e4.core.services.annotations.Optional;
 import org.eclipse.e4.core.services.annotations.PostConstruct;
 import org.eclipse.e4.core.services.annotations.PreDestroy;
 import org.eclipse.e4.core.services.annotations.UIEventHandler;
-import org.eclipse.e4.core.services.injector.IObjectProvider;
-import org.eclipse.e4.core.services.injector.ObjectDescriptor;
 import org.eclipse.e4.core.services.internal.context.InjectionProperties;
 
 public class AnnotationsSupport {
@@ -38,20 +34,20 @@ public class AnnotationsSupport {
 		// placeholder
 	}
 	
-	public InjectionProperties getInjectProperties(Field field, IObjectProvider context) {
-		InjectionProperties property = getInjectProperties(field.getAnnotations(), field.getGenericType(), context);
+	public InjectionProperties getInjectProperties(Field field) {
+		InjectionProperties property = getInjectProperties(field.getAnnotations(), field.getGenericType());
 		return property;
 	}
 
-	public InjectionProperties getInjectProperties(Method method, IObjectProvider context) {
-		return getInjectProperties(method.getAnnotations(), null, context);
+	public InjectionProperties getInjectProperties(Method method) {
+		return getInjectProperties(method.getAnnotations(), null);
 	}
 	
-	public InjectionProperties getInjectProperties(Constructor constructor, IObjectProvider context) {
-		return getInjectProperties(constructor.getAnnotations(), null, context);
+	public InjectionProperties getInjectProperties(Constructor constructor) {
+		return getInjectProperties(constructor.getAnnotations(), null);
 	}
 	
-	public InjectionProperties[] getInjectParamsProperties(Constructor constructor, IObjectProvider context) {
+	public InjectionProperties[] getInjectParamsProperties(Constructor constructor) {
 		Annotation[][] annotations = constructor.getParameterAnnotations();
 		Type[] logicalParams = constructor.getGenericParameterTypes();
 		// JDK bug: different methods see / don't see generated args for nested classes
@@ -63,23 +59,23 @@ public class AnnotationsSupport {
 			System.arraycopy(logicalParams, 0, tmp, compilerParams.length - logicalParams.length, logicalParams.length);
 			logicalParams = tmp;
 		}
-		return  getInjectProperties(annotations, logicalParams, context);
+		return  getInjectProperties(annotations, logicalParams);
 	}
 
-	public InjectionProperties[] getInjectParamProperties(Method method, IObjectProvider context) {
+	public InjectionProperties[] getInjectParamProperties(Method method) {
 		Annotation[][] annotations = method.getParameterAnnotations();
 		Type[] params = method.getGenericParameterTypes();
-		return  getInjectProperties(annotations, params, context);
+		return  getInjectProperties(annotations, params);
 	}
 
-	private InjectionProperties[] getInjectProperties(Annotation[][] annotations, Type[] params, IObjectProvider context) {
+	private InjectionProperties[] getInjectProperties(Annotation[][] annotations, Type[] params) {
 		InjectionProperties[] result = new InjectionProperties[params.length]; 
 		for(int i = 0 ; i <  params.length; i++)
-			result[i] = getInjectProperties(annotations[i], params[i], context);
+			result[i] = getInjectProperties(annotations[i], params[i]);
 		return result;
 	}
 
-	private InjectionProperties getInjectProperties(Annotation[] annotations, Type param, IObjectProvider context) {
+	private InjectionProperties getInjectProperties(Annotation[] annotations, Type param) {
 		// Process annotations
 		boolean inject = false;
 		boolean optional = false;
@@ -125,25 +121,7 @@ public class AnnotationsSupport {
 		}
 		if (groupUpdates)
 			result.setGroupUpdates(true);
-		
-		// Process providers
-		if (!(param instanceof ParameterizedType))
-			return result;
-		Type rawType = ((ParameterizedType)param).getRawType();
-		if (!(rawType instanceof Class<?>))
-			return result;
-		boolean isProvider = ((Class<?>) rawType).isAssignableFrom(Provider.class);
-		if (!isProvider)
-			return result;
-		Type[] actualTypes = ((ParameterizedType)param).getActualTypeArguments();
-		if (actualTypes.length != 1)
-			return result;
-		if (!(actualTypes[0] instanceof Class<?>))
-			return result;
-		Class<?> clazz = (Class<?>)actualTypes[0];
-		ObjectDescriptor desc = ObjectDescriptor.make(clazz, result.getPropertyName());
-		result.setProvider(new ProviderImpl(desc, context));
-		
+
 		return result;
 	}
 	
