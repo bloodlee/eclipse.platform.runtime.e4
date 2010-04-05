@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.e4.core.tests.services.internal.annotations;
 
-import org.eclipse.e4.core.services.annotations.PostConstruct;
-import org.eclipse.e4.core.services.annotations.PreDestroy;
-import org.eclipse.e4.core.services.context.IEclipseContext;
+import javax.inject.Inject;
+
+import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.core.di.annotations.PostConstruct;
+import org.eclipse.e4.core.di.annotations.PreDestroy;
 
 /**
  * Test class to check injection mechanism into classes with inheritance
@@ -20,7 +22,8 @@ import org.eclipse.e4.core.services.context.IEclipseContext;
 public class ObjectSuperClass {
 
 	protected IEclipseContext context;
-	private String inject__String;
+	@Inject
+	private String String;
 	private String myString;
 
 	public int postConstructSetStringCalled;
@@ -34,6 +37,7 @@ public class ObjectSuperClass {
 		// placeholder
 	}
 
+	@Inject
 	public void contextSet(IEclipseContext context) {
 		this.context = context;
 		setFinalizedCalled++;
@@ -48,7 +52,7 @@ public class ObjectSuperClass {
 	}
 
 	public String getString() {
-		return inject__String;
+		return String;
 	}
 
 	public String getStringViaMethod() {

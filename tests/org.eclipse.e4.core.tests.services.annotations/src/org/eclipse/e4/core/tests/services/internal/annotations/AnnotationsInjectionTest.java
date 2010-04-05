@@ -20,13 +20,13 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.eclipse.e4.core.services.IDisposable;
-import org.eclipse.e4.core.services.annotations.Optional;
-import org.eclipse.e4.core.services.annotations.PostConstruct;
-import org.eclipse.e4.core.services.annotations.PreDestroy;
-import org.eclipse.e4.core.services.context.EclipseContextFactory;
-import org.eclipse.e4.core.services.context.IEclipseContext;
-import org.eclipse.e4.core.services.context.spi.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.EclipseContextFactory;
+import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.core.di.IDisposable;
+import org.eclipse.e4.core.di.annotations.Optional;
+import org.eclipse.e4.core.di.annotations.PostConstruct;
+import org.eclipse.e4.core.di.annotations.PreDestroy;
 
 /**
  * Tests for the basic context injection functionality

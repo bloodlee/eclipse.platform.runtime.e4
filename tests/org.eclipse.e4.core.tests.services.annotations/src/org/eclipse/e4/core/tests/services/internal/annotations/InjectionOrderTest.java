@@ -15,11 +15,11 @@ import javax.inject.Named;
 
 import junit.framework.TestCase;
 
-import org.eclipse.e4.core.services.IDisposable;
-import org.eclipse.e4.core.services.annotations.PreDestroy;
-import org.eclipse.e4.core.services.context.EclipseContextFactory;
-import org.eclipse.e4.core.services.context.IEclipseContext;
-import org.eclipse.e4.core.services.context.spi.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.EclipseContextFactory;
+import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.core.di.IDisposable;
+import org.eclipse.e4.core.di.annotations.PreDestroy;
 
 public class InjectionOrderTest extends TestCase {
 

@@ -13,14 +13,20 @@ package org.eclipse.e4.core.tests.services.internal.annotations;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.inject.Inject;
+
 import junit.framework.TestCase;
-import org.eclipse.e4.core.services.IDisposable;
-import org.eclipse.e4.core.services.context.*;
-import org.eclipse.e4.core.services.context.spi.ContextInjectionFactory;
-import org.eclipse.e4.core.services.context.spi.IContextConstants;
+
+import org.eclipse.e4.core.contexts.ContextChangeEvent;
+import org.eclipse.e4.core.contexts.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.EclipseContextFactory;
+import org.eclipse.e4.core.contexts.IContextConstants;
+import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.core.contexts.IRunAndTrack;
+import org.eclipse.e4.core.di.IDisposable;
+import org.eclipse.e4.core.internal.contexts.osgi.OSGiContextStrategy;
 import org.eclipse.e4.core.tests.services.annotations.Activator;
-import org.eclipse.e4.internal.core.services.osgi.OSGiContextStrategy;
 import org.eclipse.osgi.service.debug.DebugOptions;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;

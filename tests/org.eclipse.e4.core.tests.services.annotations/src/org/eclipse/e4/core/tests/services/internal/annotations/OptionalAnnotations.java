@@ -13,7 +13,7 @@ package org.eclipse.e4.core.tests.services.internal.annotations;
 
 import javax.inject.Inject;
 
-import org.eclipse.e4.core.services.annotations.Optional;
+import org.eclipse.e4.core.di.annotations.Optional;
 
 public class OptionalAnnotations {
 

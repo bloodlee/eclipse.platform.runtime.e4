@@ -7,7 +7,9 @@ Bundle-Activator: org.eclipse.e4.core.tests.services.annotations.Activator
 Require-Bundle: org.junit;bundle-version="3.8.2",
  org.eclipse.e4.core.services;bundle-version="0.9.1",
  org.eclipse.osgi;bundle-version="3.6.0",
- org.eclipse.equinox.common;bundle-version="3.6.0"
+ org.eclipse.equinox.common;bundle-version="3.6.0",
+ org.eclipse.e4.core.contexts,
+ org.eclipse.e4.core.di
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Vendor: Eclipse.org

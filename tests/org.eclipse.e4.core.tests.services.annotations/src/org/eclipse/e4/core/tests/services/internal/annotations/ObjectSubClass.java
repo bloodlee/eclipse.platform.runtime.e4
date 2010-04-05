@@ -10,15 +10,18 @@
  *******************************************************************************/
 package org.eclipse.e4.core.tests.services.internal.annotations;
 
-import org.eclipse.e4.core.services.annotations.PostConstruct;
-import org.eclipse.e4.core.services.annotations.PreDestroy;
-import org.eclipse.e4.core.services.context.IEclipseContext;
+import javax.inject.Inject;
+
+import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.core.di.annotations.PostConstruct;
+import org.eclipse.e4.core.di.annotations.PreDestroy;
 
 /**
  * Test class to check injection mechanism into classes with inheritance
  */
 public class ObjectSubClass extends ObjectSuperClass {
-	/* package */Integer inject__Integer;
+	@Inject
+	/* package */Integer Integer;
 
 	private Object myObject;
 
@@ -43,13 +46,14 @@ public class ObjectSubClass extends ObjectSuperClass {
 		setOverriddenCalled++;
 	}
 
+	@Inject
 	public void contextSet(IEclipseContext context) {
 		super.contextSet(context);
 		setSubFinalized++;
 	}
 
 	public Integer getInteger() {
-		return inject__Integer;
+		return Integer;
 	}
 
 	public Object getObjectViaMethod() {

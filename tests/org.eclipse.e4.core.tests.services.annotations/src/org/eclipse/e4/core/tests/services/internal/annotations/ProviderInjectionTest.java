@@ -19,11 +19,11 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.eclipse.e4.core.services.context.EclipseContextFactory;
-import org.eclipse.e4.core.services.context.IEclipseContext;
-import org.eclipse.e4.core.services.context.spi.ContextInjectionFactory;
-import org.eclipse.e4.core.services.injector.IInjector;
-import org.eclipse.e4.core.services.injector.InjectorFactory;
+import org.eclipse.e4.core.contexts.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.EclipseContextFactory;
+import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.core.di.IInjector;
+import org.eclipse.e4.core.di.InjectorFactory;
 
 /**
  * Testing provider interface

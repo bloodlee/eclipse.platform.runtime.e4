@@ -15,13 +15,13 @@ import java.text.NumberFormat;
 
 import javax.inject.Inject;
 
-import org.eclipse.e4.core.services.context.ContextChangeEvent;
-import org.eclipse.e4.core.services.context.EclipseContextFactory;
-import org.eclipse.e4.core.services.context.IContextFunction;
-import org.eclipse.e4.core.services.context.IEclipseContext;
-import org.eclipse.e4.core.services.context.IRunAndTrack;
-import org.eclipse.e4.core.services.context.spi.ContextFunction;
-import org.eclipse.e4.core.services.context.spi.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.ContextChangeEvent;
+import org.eclipse.e4.core.contexts.ContextFunction;
+import org.eclipse.e4.core.contexts.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.EclipseContextFactory;
+import org.eclipse.e4.core.contexts.IContextFunction;
+import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.core.contexts.IRunAndTrack;
 import org.eclipse.e4.core.tests.services.annotations.Activator;
 import org.osgi.framework.ServiceRegistration;
 

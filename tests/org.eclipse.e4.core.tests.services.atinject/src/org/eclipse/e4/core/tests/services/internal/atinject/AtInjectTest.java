@@ -27,8 +27,8 @@ import org.atinject.tck.auto.Tire;
 import org.atinject.tck.auto.V8Engine;
 import org.atinject.tck.auto.accessories.Cupholder;
 import org.atinject.tck.auto.accessories.SpareTire;
-import org.eclipse.e4.core.services.injector.IInjector;
-import org.eclipse.e4.core.services.injector.InjectorFactory;
+import org.eclipse.e4.core.di.IInjector;
+import org.eclipse.e4.core.di.InjectorFactory;
 
 public class AtInjectTest extends TestSuite {
 

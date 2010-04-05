@@ -11,8 +11,8 @@
 
 package org.eclipse.e4.core.tests.services.internal.annotations;
 
-import org.eclipse.e4.core.services.context.IEclipseContext;
-import org.eclipse.e4.core.services.context.spi.ContextFunction;
+import org.eclipse.e4.core.contexts.ContextFunction;
+import org.eclipse.e4.core.contexts.IEclipseContext;
 
 /**
  * A function provided as a declarative service. See OSGI-INF/adder.xml.

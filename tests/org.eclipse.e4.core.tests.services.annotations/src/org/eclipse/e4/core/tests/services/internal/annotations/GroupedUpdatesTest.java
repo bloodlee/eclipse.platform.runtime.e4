@@ -15,10 +15,10 @@ import javax.inject.Named;
 
 import junit.framework.TestCase;
 
-import org.eclipse.e4.core.services.annotations.GroupUpdates;
-import org.eclipse.e4.core.services.context.EclipseContextFactory;
-import org.eclipse.e4.core.services.context.IEclipseContext;
-import org.eclipse.e4.core.services.context.spi.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.EclipseContextFactory;
+import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.core.di.annotations.GroupUpdates;
 
 public class GroupedUpdatesTest extends TestCase {
 	

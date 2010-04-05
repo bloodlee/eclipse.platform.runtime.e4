@@ -15,12 +15,12 @@ import javax.inject.Named;
 
 import junit.framework.TestCase;
 
-import org.eclipse.e4.core.services.IDisposable;
-import org.eclipse.e4.core.services.annotations.Optional;
-import org.eclipse.e4.core.services.context.EclipseContextFactory;
-import org.eclipse.e4.core.services.context.IEclipseContext;
-import org.eclipse.e4.core.services.context.spi.ContextInjectionFactory;
-import org.eclipse.e4.core.services.context.spi.IContextConstants;
+import org.eclipse.e4.core.contexts.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.EclipseContextFactory;
+import org.eclipse.e4.core.contexts.IContextConstants;
+import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.core.di.IDisposable;
+import org.eclipse.e4.core.di.annotations.Optional;
 
 public class DisposingReferencedContextTest extends TestCase {
 	
