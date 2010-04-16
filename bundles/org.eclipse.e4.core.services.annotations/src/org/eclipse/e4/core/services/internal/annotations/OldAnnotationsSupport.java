@@ -10,12 +10,7 @@
  *******************************************************************************/
 package org.eclipse.e4.core.services.internal.annotations;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-
+import java.lang.reflect.*;
 import org.eclipse.e4.core.internal.di.InjectionProperties;
 
 public class OldAnnotationsSupport {
@@ -44,14 +39,6 @@ public class OldAnnotationsSupport {
 		return null;
 	}
 
-	private InjectionProperties[] getInjectProperties(Annotation[][] annotations, Type[] params) {
-		return null;
-	}
-
-	private InjectionProperties getInjectProperties(Annotation[] annotations, Type param) {
-		return null;
-	}
-	
 	public boolean isPostConstruct(Method method) {
 		return false;
 	}
