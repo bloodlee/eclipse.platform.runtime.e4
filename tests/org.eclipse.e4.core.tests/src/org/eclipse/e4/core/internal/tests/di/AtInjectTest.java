@@ -8,9 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.e4.core.tests.services.internal.atinject;
-
-import java.lang.reflect.InvocationTargetException;
+package org.eclipse.e4.core.internal.tests.di;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -32,8 +30,7 @@ import org.eclipse.e4.core.di.InjectorFactory;
 
 public class AtInjectTest extends TestSuite {
 
-	public static Test suite() throws InvocationTargetException, InstantiationException {
-//		ObjectProviderBinding objectProvider = new ObjectProviderBinding();
+	public static Test suite() {
 		IInjector injector = InjectorFactory.getInjector();
 
 		// TCK description:
@@ -51,13 +48,12 @@ public class AtInjectTest extends TestSuite {
 		injector.addBinding(Seat.class);
 		injector.addBinding(DriversSeat.class);
 
-		// inject statics
+		// statics
 		injector.injectStatic(Convertible.class, null);
 		injector.injectStatic(Tire.class, null);
 		injector.injectStatic(SpareTire.class, null);
 
 		Car car = (Car) injector.make(Car.class, null);
-//		Car car = (Car) objectProvider.get(ObjectDescriptor.make(Car.class, false));
 		return Tck.testsFor(car, true, true);
 	}
 }
