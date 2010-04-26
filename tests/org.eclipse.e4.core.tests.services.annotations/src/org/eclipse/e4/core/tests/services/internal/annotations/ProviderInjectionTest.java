@@ -24,6 +24,7 @@ import org.eclipse.e4.core.contexts.EclipseContextFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.IInjector;
 import org.eclipse.e4.core.di.InjectorFactory;
+import org.eclipse.e4.core.di.annotations.Execute;
 
 /**
  * Testing provider interface
@@ -45,6 +46,7 @@ public class ProviderInjectionTest extends TestCase {
 		public TestInvokeClass() {
 			// placeholder
 		}
+		@Execute
 		public int execute(Provider<TestData> arg) {
 			provider = arg;
 			return 1;
@@ -72,7 +74,7 @@ public class ProviderInjectionTest extends TestCase {
 		super(name);
 	}
 
-	public synchronized void testInvokeWithProvider() throws InvocationTargetException {
+	public synchronized void testInvokeWithProvider() {
 
 		// create context
 		IEclipseContext context = EclipseContextFactory.create();
@@ -81,13 +83,13 @@ public class ProviderInjectionTest extends TestCase {
 		injector.addBinding(TestData.class);
 
 		TestInvokeClass userObject = new TestInvokeClass();
-		assertEquals(1, ContextInjectionFactory.invoke(userObject, "execute", context, null));
+		assertEquals(1, ContextInjectionFactory.invoke(userObject, Execute.class, context, null));
 		
 		assertNotNull(userObject.provider.get());
 		assertEquals("abc", userObject.provider.get().data);
 	}
 	
-	public synchronized void testConstructorWithProvider() throws InvocationTargetException, InstantiationException {
+	public synchronized void testConstructorWithProvider() {
 		// create context
 		IEclipseContext context = EclipseContextFactory.create();
 		context.set(String.class.getName(), "abc");

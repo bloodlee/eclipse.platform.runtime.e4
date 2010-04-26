@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,8 +9,6 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.e4.core.tests.services.internal.annotations;
-
-import java.lang.reflect.InvocationTargetException;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -24,6 +22,7 @@ import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.EclipseContextFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.IDisposable;
+import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.core.di.annotations.PostConstruct;
 import org.eclipse.e4.core.di.annotations.PreDestroy;
@@ -47,6 +46,7 @@ public class AnnotationsInjectionTest extends TestCase {
 
 	public void testContextSetOneArg() {
 		class TestData {
+			// empty
 		}
 		class Injected {
 			int contextSetCalled = 0;
@@ -84,6 +84,7 @@ public class AnnotationsInjectionTest extends TestCase {
 
 	public void testPostConstruct() {
 		class TestData {
+			// empty
 		}
 		class Injected {
 			int postConstructCalled = 0;
@@ -161,6 +162,7 @@ public class AnnotationsInjectionTest extends TestCase {
 	public void testFieldMethodOrder() {
 		final AssertionFailedError[] error = new AssertionFailedError[1];
 		class TestData {
+			// empty
 		}
 		class Injected {
 			@Inject @Named("valueField")
@@ -233,13 +235,14 @@ public class AnnotationsInjectionTest extends TestCase {
 		assertEquals(testFloat, userObject.f);
 	}
 	
-	public void testOptionalInvoke() throws InvocationTargetException {
+	public void testOptionalInvoke() {
 		
 		class TestObject {
 			public int called = 0;
 
 		    @SuppressWarnings("unused")
-			public String doSomething(@Optional String param) {
+		    @Execute
+			public String something(@Optional String param) {
 		    	called++;
 		        return param;
 		    }
@@ -250,13 +253,13 @@ public class AnnotationsInjectionTest extends TestCase {
 	    TestObject testObject = new TestObject();
 	    context.set(String.class.getName(), testObject);
 	    
-	    Object result = ContextInjectionFactory.invoke(testObject, "doSomething", context, notAnObject);
+	    Object result = ContextInjectionFactory.invoke(testObject, Execute.class, context, notAnObject);
 	    assertNull(result);
 	    assertEquals(1, testObject.called);
 
 	    String string = "sample";
 	    context.set(String.class.getName(), string);
-	    result = ContextInjectionFactory.invoke(testObject, "doSomething", context, notAnObject);
+	    result = ContextInjectionFactory.invoke(testObject, Execute.class, context, notAnObject);
 	    assertEquals(string, result);
 	    assertEquals(2, testObject.called);
 	}
@@ -291,7 +294,7 @@ public class AnnotationsInjectionTest extends TestCase {
 		assertEquals(1, userObject.overriddenPreDestroyCount);
 	}
 
-	public void testInvoke() throws InvocationTargetException {
+	public void testInvoke() {
 		class TestData {
 			public String value;
 			
@@ -307,7 +310,8 @@ public class AnnotationsInjectionTest extends TestCase {
 			}
 
 			@SuppressWarnings("unused")
-			public String doSomething(@Named("testing123") TestData data) {
+			@Execute
+			public String something(@Named("testing123") TestData data) {
 				myString = data.value;
 				return "true";
 			}
@@ -319,12 +323,13 @@ public class AnnotationsInjectionTest extends TestCase {
 		Injected object = new Injected();
 		assertNull(object.myString);
 		
-		assertEquals("true", ContextInjectionFactory.invoke(object, "doSomething", context, null));
+		assertEquals("true", ContextInjectionFactory.invoke(object, Execute.class, context, null));
 		assertEquals("abc", object.myString);
 	}
 	
 	public void testPreDestroy() {
 		class TestData {
+			// empty
 		}
 		class Injected {
 			int preDestoryCalled = 0;
