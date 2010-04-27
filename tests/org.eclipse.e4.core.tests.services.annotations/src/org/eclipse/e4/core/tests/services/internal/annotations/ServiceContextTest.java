@@ -85,7 +85,7 @@ public class ServiceContextTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		//don't use the global shared service context to avoid contamination across tests
-		context = EclipseContextFactory.create(null, new OSGiContextStrategy(Activator.bundleContext));
+		context = EclipseContextFactory.getServiceContext(Activator.bundleContext);
 		registrations.clear();
 	}
 
@@ -119,8 +119,7 @@ public class ServiceContextTest extends TestCase {
 	 * Tests accessing OSGi services through a child context that is not aware of them.
 	 */
 	public void testServiceContextAsParent() {
-		IEclipseContext child = EclipseContextFactory.create(context, null);
-		child.set(IContextConstants.DEBUG_STRING, "child");
+		IEclipseContext child = context.createChild( "child");
 		DebugOptions service = (DebugOptions) child.get(DebugOptions.class.getName());
 		assertNotNull(service);
 	}
@@ -179,8 +178,8 @@ public class ServiceContextTest extends TestCase {
 
 	public void testRecursiveServiceRemoval() {
 		ServiceRegistration reg1 = Activator.bundleContext.registerService(PrintService.SERVICE_NAME, new StringPrintService(), null);
-		final IEclipseContext child = EclipseContextFactory.create(context, null);
-		final IEclipseContext child2 = EclipseContextFactory.create(context, null);
+		final IEclipseContext child = context.createChild();
+		final IEclipseContext child2 = context.createChild();
 		child.get(PrintService.SERVICE_NAME);
 		child2.get(PrintService.SERVICE_NAME);
 		ensureUnregistered(reg1);
@@ -215,8 +214,7 @@ public class ServiceContextTest extends TestCase {
 		ServiceRegistration reg1 = Activator.bundleContext.registerService(PrintService.SERVICE_NAME, stringPrint1, null);
 		ServiceReference ref = reg1.getReference();
 		assertNull("0.1", ref.getUsingBundles());
-		IEclipseContext child = EclipseContextFactory.create(context, null);
-		child.set(IContextConstants.DEBUG_STRING, "child");
+		IEclipseContext child = context.createChild("child");
 
 		PrintService service = (PrintService) child.get(PrintService.SERVICE_NAME);
 		assertEquals("1.0", stringPrint1, service);
@@ -230,8 +228,7 @@ public class ServiceContextTest extends TestCase {
 		System.runFinalization();
 		System.gc();
 		//create and dispose another child that uses the service
-		child = EclipseContextFactory.create(context, null);
-		child.set(IContextConstants.DEBUG_STRING, "child-2");
+		child = context.createChild("child-2");
 		service = (PrintService) child.get(PrintService.SERVICE_NAME);
 		service = null;
 		((IDisposable) child).dispose();

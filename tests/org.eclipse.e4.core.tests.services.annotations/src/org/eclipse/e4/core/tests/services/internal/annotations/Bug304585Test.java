@@ -11,15 +11,17 @@
 
 package org.eclipse.e4.core.tests.services.internal.annotations;
 
+import javax.inject.Inject;
+
+import junit.framework.TestCase;
+
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.EclipseContextFactory;
 import org.eclipse.e4.core.contexts.IContextConstants;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.IDisposable;
+import org.eclipse.e4.core.internal.contexts.EclipseContext;
 import org.eclipse.e4.core.internal.contexts.ILookupStrategy;
-
-import javax.inject.Inject;
-import junit.framework.TestCase;
 
 /**
  * Tests that a strategy is not still accessed after its context is disposed.
@@ -40,11 +42,9 @@ public class Bug304585Test extends TestCase {
 
 
 	public void testFieldInjection() throws Exception {
-		IEclipseContext parent = EclipseContextFactory.create();
-		parent.set(IContextConstants.DEBUG_STRING, "ParentContext");
+		IEclipseContext parent = EclipseContextFactory.create("ParentContext");
 		Strategy strategy = new Strategy();
-		IEclipseContext child = EclipseContextFactory.create(parent, strategy);
-		child.set(IContextConstants.DEBUG_STRING, "ChildContext");
+		IEclipseContext child = new EclipseContext(parent, strategy);
 
 		ContextInjectionFactory.make(InjectFieldTarget.class, child);
 
@@ -54,11 +54,9 @@ public class Bug304585Test extends TestCase {
 	}
 
 	public void testMethodInjection() throws Exception {
-		IEclipseContext parent = EclipseContextFactory.create();
-		parent.set(IContextConstants.DEBUG_STRING, "ParentContext");
+		IEclipseContext parent = EclipseContextFactory.create("ParentContext");
 		Strategy strategy = new Strategy();
-		IEclipseContext child = EclipseContextFactory.create(parent, strategy);
-		child.set(IContextConstants.DEBUG_STRING, "ChildContext");
+		IEclipseContext child = new EclipseContext(parent, strategy);
 
 		ContextInjectionFactory.make(InjectMethodTarget.class, child);
 

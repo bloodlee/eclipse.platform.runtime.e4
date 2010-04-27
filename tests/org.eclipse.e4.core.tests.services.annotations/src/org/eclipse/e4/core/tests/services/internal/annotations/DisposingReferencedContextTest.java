@@ -63,10 +63,8 @@ public class DisposingReferencedContextTest extends TestCase {
 	}
 
 	private void testContextDisposeCausesCompleteUninjection_Mandatory(boolean disposeFirst) {
-		IEclipseContext windowContext = EclipseContextFactory.create();
-		windowContext.set(IContextConstants.DEBUG_STRING, "windowContext");
-		IEclipseContext partContext = EclipseContextFactory.create(windowContext, null);
-		partContext.set(IContextConstants.DEBUG_STRING, "partContext");
+		IEclipseContext windowContext = EclipseContextFactory.create("windowContext");
+		IEclipseContext partContext = windowContext.createChild("partContext");
 
 		windowContext.set(IContextConstants.ACTIVE_CHILD, partContext);
 
@@ -90,7 +88,7 @@ public class DisposingReferencedContextTest extends TestCase {
 
 	private void testContextDisposeCausesCompleteUninjection_Optional(boolean disposeFirst) {
 		IEclipseContext windowContext = EclipseContextFactory.create();
-		IEclipseContext partContext = EclipseContextFactory.create(windowContext, null);
+		IEclipseContext partContext = windowContext.createChild();
 
 		windowContext.set(IContextConstants.ACTIVE_CHILD, partContext);
 

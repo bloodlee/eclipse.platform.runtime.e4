@@ -98,7 +98,7 @@ public class ContextExample {
 	public void run() {
 		IEclipseContext parent = EclipseContextFactory.create();
 		parent.set("complement", new ComplementaryColor());
-		IEclipseContext context = EclipseContextFactory.create(parent, null);
+		IEclipseContext context = parent.createChild();
 		context.set("color", Color.YELLOW);
 		Crayon crayon = new Crayon();
 		ContextInjectionFactory.inject(crayon, context);
@@ -121,7 +121,7 @@ public class ContextExample {
 	public void run2() {
 		IEclipseContext parent = EclipseContextFactory.create();
 		parent.set("complement", new ComplementaryColor());
-		IEclipseContext child = EclipseContextFactory.create(parent, null);
+		IEclipseContext child = parent.createChild();
 		child.set("color", Color.RED);
 		System.out.println(child.get("color"));
 		System.out.println(child.get("complement"));

@@ -53,22 +53,19 @@ public class InjectionUpdateTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-		c1 = EclipseContextFactory.create(null, null);
-		c1.set(IContextConstants.DEBUG_STRING, "c1");
+		c1 = EclipseContextFactory.create("c1");
 		c1.set("id", "c1");
 
-		c21 = EclipseContextFactory.create(c1, null);
-		c21.set(IContextConstants.DEBUG_STRING, "c21");
+		c21 = c1.createChild("c21");
 		c21.set("id", "c21");
 		c1.set("c21", c21);
 
-		c22 = EclipseContextFactory.create(c1, null);
-		c22.set(IContextConstants.DEBUG_STRING, "c22");
+		c22 = c1.createChild("c22");
 		c22.set("id", "c22");
 		c1.set("c22", c22);
 	}
 	
-	public void testPropagation() throws InvocationTargetException, InstantiationException {
+	public void testPropagation() {
 		c1.set("base", "abc");
 
 		c21.set("derived1", new IContextFunction() {
