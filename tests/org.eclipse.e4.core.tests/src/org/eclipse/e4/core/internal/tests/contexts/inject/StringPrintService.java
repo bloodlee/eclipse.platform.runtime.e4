@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,17 +9,20 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 
-package org.eclipse.e4.core.tests.services.internal.annotations;
+package org.eclipse.e4.core.internal.tests.contexts.inject;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+/**
+ *
+ */
+public class StringPrintService implements PrintService {
+	private StringBuffer buf = new StringBuffer();
 
-public class ServicesTestSuiteAnnotations extends TestSuite {
-	public static Test suite() {
-		return new ServicesTestSuiteAnnotations();
+	public void print(String message) {
+		buf.append(message);
 	}
 
-	public ServicesTestSuiteAnnotations() {
-		// no longer used
+	public String toString() {
+		return buf.toString();
 	}
+
 }
