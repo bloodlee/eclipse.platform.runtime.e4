@@ -10,40 +10,7 @@
  *******************************************************************************/
 package org.eclipse.e4.core.services.internal.annotations;
 
-import java.lang.reflect.*;
-import org.eclipse.e4.core.internal.di.InjectionProperties;
 
 public class OldAnnotationsSupport {
 
-	public OldAnnotationsSupport() {
-		// placeholder
-	}
-	
-	public InjectionProperties getInjectProperties(Field field) {
-		return null;
-	}
-
-	public InjectionProperties getInjectProperties(Method method) {
-		return null;
-	}
-	
-	public InjectionProperties getInjectProperties(Constructor constructor) {
-		return null;
-	}
-	
-	public InjectionProperties[] getInjectParamsProperties(Constructor constructor) {
-		return null;
-	}
-
-	public InjectionProperties[] getInjectParamProperties(Method method) {
-		return null;
-	}
-
-	public boolean isPostConstruct(Method method) {
-		return false;
-	}
-	
-	public boolean isPreDestory(Method method) {
-		return false;
-	}
 }
