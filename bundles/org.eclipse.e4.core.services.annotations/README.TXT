@@ -1,1 +1,0 @@
-This project is obsolete. Content has been moved into org.eclipse.e4.core.di.
